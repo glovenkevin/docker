@@ -15,12 +15,20 @@ docker network create development
 
 ## How to run this project
 
-Start the container
+Related to container
 ```sh
 make compose-up
+
+make compose-down
 ```
 
-Drop the container
+Kafka
 ```sh
-make compose-down
+# Up container kafka only
+make kafka-up
+make kafka-down
+
+# Related to topics
+make kafka-create-topic topic=<topic_name>
+make kafka-delete-topic topic=<topic_name>
 ```
