@@ -11,18 +11,25 @@ compose-up:
 compose-down:
 	docker compose $(docker_files) down
 
-# kafka
-kafka-up:
-	docker compose -f docker-compose.kafka.yaml up -d
-
-kafka-down:
-	docker compose -f docker-compose.kafka.yaml down
-
-kafka-create-topic:
-	docker exec -it confluent-broker sh -c "kafka-topics --bootstrap-server confluent-broker:9092 --create --topic $(topic)"
-
-kafka-delete-topic:
-	docker exec -it confluent-broker sh -c "kafka-topics --bootstrap-server confluent-broker:9092 --delete --topic $(topic)"
-
 compose-ps:
 	docker compose $(docker_files) ps
+
+# kafka ui
+kafka-ui-up:
+	docker compose -f docker-compose.kafka-ui.yaml up -d
+
+kafka-ui-down:
+	docker compose -f docker-compose.kafka-ui.yaml down
+
+# Confluent Kafka
+kc-up:
+	docker compose -f docker-compose.confluent-kafka.yaml up -d
+
+kc-down:
+	docker compose -f docker-compose.confluent-kafka.yaml down
+
+kc-create-topic:
+	docker exec -it confluent-broker sh -c "kafka-topics --bootstrap-server confluent-broker:9092 --create --topic $(topic)"
+
+kc-delete-topic:
+	docker exec -it confluent-broker sh -c "kafka-topics --bootstrap-server confluent-broker:9092 --delete --topic $(topic)"
