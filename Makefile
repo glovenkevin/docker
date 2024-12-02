@@ -70,7 +70,7 @@ kcc-stop:
 	docker compose -f docker-compose.confluent-kafka-cluster.yaml stop
 
 kcc-create-topic:
-	docker exec -it confluent-broker sh -c "kafka-topics --bootstrap-server confluent-broker-1:9092 --create --partitions 2 --replication-factor 2 --topic $(topic)"
+	docker exec -it confluent-kafka-1 sh -c "kafka-topics --bootstrap-server confluent-kafka-1:9092 --create --partitions 2 --replication-factor 2 --topic $(topic)"
 
 # Rabbit mq kafka
 rq-up:
