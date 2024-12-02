@@ -2,21 +2,6 @@ include:
   - network.yaml
 
 services:
-  kafka-ui:
-    container_name: kafka-ui
-    image: provectuslabs/kafka-ui:latest
-    environment:
-      DYNAMIC_CONFIG_ENABLED: "true"
-      KAFKA_CLUSTERS_0_NAME: wOS-development
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: zoka01-alpha.w6.co:9092
-      KAFKA_CLUSTERS_1_NAME: docker-development
-      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: confluent-broker:9092
-    ports:
-      - "8000:8080"
-    depends_on:
-      - confluent-zookeeper
-      - confluent-broker
-
   confluent-zookeeper:
     image: confluentinc/cp-zookeeper:6.1.0
     container_name: confluent-zookeeper
