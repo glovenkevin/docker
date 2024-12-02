@@ -10,7 +10,7 @@ services:
       KAFKA_CLUSTERS_0_NAME: wOS-development
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: zoka01-alpha.w6.co:9092
       KAFKA_CLUSTERS_1_NAME: docker-development
-      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: confluent-broker:29092
+      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: confluent-broker:9092
     ports:
       - "8000:8080"
     depends_on:
@@ -33,13 +33,13 @@ services:
     depends_on:
       - confluent-zookeeper
     ports:
-      - "9092:9092"
-      - "9101:9101"
+      - "29092:29092"
+      - "29101:9101"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'confluent-zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://confluent-broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://confluent-broker:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
@@ -50,7 +50,7 @@ services:
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
       KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: confluent-broker:29092
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: confluent-broker:9092
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
@@ -65,5 +65,5 @@ services:
       - "8081:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'confluent-broker:29092'
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'confluent-broker:9092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
