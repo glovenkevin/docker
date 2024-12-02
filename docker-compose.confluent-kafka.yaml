@@ -8,8 +8,9 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - 22181:2181
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
 
   confluent-broker:
     image: confluentinc/cp-server:6.1.0
@@ -18,13 +19,13 @@ services:
     depends_on:
       - confluent-zookeeper
     ports:
-      - "29092:29092"
+      - "39092:39092"
       - "29101:9101"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'confluent-zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://confluent-broker:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://confluent-broker:9092,PLAINTEXT_HOST://localhost:39092
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
@@ -41,6 +42,7 @@ services:
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
     volumes:
       - kafka-data:/var/lib/kafka/data
+      - kafka-log:/var/log/kafka
 
   confluent-schema-registry:
     image: confluentinc/cp-schema-registry:6.1.0
@@ -57,5 +59,6 @@ services:
 
 volumes:
   kafka-data:
-    external: true
-    name: local-confluent-kafka
+  kafka-log:
+  zookeeper-data:
+  zookeeper-log:
