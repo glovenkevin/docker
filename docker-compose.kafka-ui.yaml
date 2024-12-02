@@ -9,7 +9,7 @@ services:
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: wOS-development
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: zoka01-alpha.w6.co:9092
-      KAFKA_CLUSTERS_1_NAME: docker-development
+      KAFKA_CLUSTERS_1_NAME: confluentinc
       KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: confluent-broker:9092
     ports:
       - "8000:8080"
