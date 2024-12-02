@@ -1,0 +1,24 @@
+include:
+  - network.yaml
+
+services:
+  rabbitmq:
+    image: rabbitmq:4.0.4-management-alpine
+    container_name: rabbit-mq
+    ports:
+      - 25672:15672 # management interface
+      - 5672:5672 # AMQP port
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbit
+      - RABBITMQ_DEFAULT_PASS=password
+    volumes:
+      - rabbit-data:/var/lib/rabbitmq/
+      - rabbit-log:/var/log/rabbitmq
+
+volumes:
+  rabbit-data:
+    external: true
+    name: local-data-rabbitmq
+  rabbit-log:
+    external: true
+    name: local-log-rabbitmq

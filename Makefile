@@ -3,6 +3,8 @@ docker_files = $(shell find docker-compose.*.yaml | sed 's/^/-f /')
 
 setup:
 	docker volume create local-postgre
+	docker volume create local-data-rabbitmq
+	docker volume create local-log-rabbitmq
 	docker network create development
 
 compose-up:
@@ -33,3 +35,10 @@ kc-create-topic:
 
 kc-delete-topic:
 	docker exec -it confluent-broker sh -c "kafka-topics --bootstrap-server confluent-broker:9092 --delete --topic $(topic)"
+
+# Rabbit mq kafka
+rq-up:
+	docker compose -f docker-compose.rabbit-mq.yaml up -d
+
+req-down:
+	docker compose -f docker-compose.rabbit-mq.yaml down
