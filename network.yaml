@@ -2,3 +2,5 @@ networks:
   default:
     name: development
     external: true
+  kafka-single-node:
+  kafka-cluster:
