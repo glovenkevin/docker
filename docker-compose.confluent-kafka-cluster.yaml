@@ -9,6 +9,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_SERVERS: confluent-zookeeper-1:2888:3888;confluent-zookeeper-2:2888:3888;confluent-zookeeper-3:2888:3888
     volumes:
       - cluster-zookeeper-1:/var/lib/zookeeper/data
       - cluster-zookeeper-log-1:/var/lib/zookeeper/log
@@ -22,9 +23,24 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2182
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_SERVERS: confluent-zookeeper-1:2888:3888;confluent-zookeeper-2:2888:3888;confluent-zookeeper-3:2888:3888
     volumes:
       - cluster-zookeeper-2:/var/lib/zookeeper/data
       - cluster-zookeeper-log-2:/var/lib/zookeeper/log
+    networks:
+      - kafka-cluster
+
+  confluent-zookeeper-3:
+    image: confluentinc/cp-zookeeper:6.1.0
+    container_name: confluent-zookeeper-3
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2182
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_SERVERS: confluent-zookeeper-1:2888:3888;confluent-zookeeper-2:2888:3888;confluent-zookeeper-3:2888:3888
+    volumes:
+      - cluster-zookeeper-3:/var/lib/zookeeper/data
+      - cluster-zookeeper-log-3:/var/lib/zookeeper/log
     networks:
       - kafka-cluster
 
@@ -34,11 +50,12 @@ services:
     depends_on:
       - confluent-zookeeper-1
       - confluent-zookeeper-2
+      - confluent-zookeeper-3
     ports:
       - 19092:19092
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: "confluent-zookeeper-1:2181,confluent-zookeeper-2:2182"
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: "confluent-zookeeper-1:2181,confluent-zookeeper-2:2182,confluent-zookeeper-3:2182"
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://confluent-kafka-1:9092,PLAINTEXT_HOST://localhost:19092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
@@ -56,11 +73,12 @@ services:
     depends_on:
       - confluent-zookeeper-1
       - confluent-zookeeper-2
+      - confluent-zookeeper-3
     ports:
       - 29092:29092
     environment:
-      KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: "confluent-zookeeper-1:2181,confluent-zookeeper-2:2182"
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: "confluent-zookeeper-1:2181,confluent-zookeeper-2:2182,confluent-zookeeper-3:2182"
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://confluent-kafka-2:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
@@ -72,6 +90,29 @@ services:
     networks:
       - kafka-cluster
 
+  confluent-kafka-3:
+    image: confluentinc/cp-kafka:6.1.0
+    container_name: confluent-kafka-3
+    depends_on:
+      - confluent-zookeeper-1
+      - confluent-zookeeper-2
+      - confluent-zookeeper-3
+    ports:
+      - 49092:49092
+    environment:
+      KAFKA_BROKER_ID: 4
+      KAFKA_ZOOKEEPER_CONNECT: "confluent-zookeeper-1:2181,confluent-zookeeper-2:2182,confluent-zookeeper-3:2182"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://confluent-kafka-3:9092,PLAINTEXT_HOST://localhost:49092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - cluster-kafka-data-3:/var/lib/kafka/data
+      - cluster-kafka-log-3:/var/log/kafka
+      - cluster-kafka-etc-3:/etc/kafka # make sure the cluster is not changing
+    networks:
+      - kafka-cluster
+
 volumes:
   cluster-kafka-data-1:
   cluster-kafka-log-1:
@@ -79,7 +120,12 @@ volumes:
   cluster-kafka-data-2:
   cluster-kafka-log-2:
   cluster-kafka-etc-2:
+  cluster-kafka-data-3:
+  cluster-kafka-log-3:
+  cluster-kafka-etc-3:
   cluster-zookeeper-1:
   cluster-zookeeper-log-1:
   cluster-zookeeper-2:
   cluster-zookeeper-log-2:
+  cluster-zookeeper-3:
+  cluster-zookeeper-log-3:
