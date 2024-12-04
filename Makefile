@@ -11,7 +11,7 @@ setup-rabbitmq:
 setup-network:
 	docker network create development
 
-setup: setup-postgre setup-kafka-volume setup-rabbitmq setup-network
+setup: setup-postgre setup-rabbitmq setup-network
 
 tearup:
 	docker volume rm local-postgre local-confluent-kafka local-data-rabbitmq \
@@ -23,6 +23,9 @@ compose-up:
 
 compose-down:
 	docker compose $(docker_files) down
+
+compose-down-v:
+	docker compose $(docker_files) down -v
 
 compose-ps:
 	docker compose $(docker_files) ps
