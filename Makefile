@@ -107,6 +107,15 @@ kafka-down:
 kafka-down-v:
 	docker compose $(kafka_docker_files) down -v
 
+kafka-start:
+	docker compose $(kafka_docker_files) start
+
+kafka-stop:
+	docker compose $(kafka_docker_files) stop
+
+kafka-restart:
+	docker compose $(kafka_docker_files) restart
+
 # Rabbit mq kafka
 rq-up:
 	docker compose -f docker-compose.rabbit-mq.yaml up -d
