@@ -1,5 +1,6 @@
 SHELL=/bin/sh
 docker_files = $(shell find docker-compose.*.yaml | sed 's/^/-f /')
+kafka_docker_files = $(shell find docker-compose.confluent-kafka*.yaml | sed 's/^/-f /')
 
 setup-postgre:
 	docker volume create local-postgre
@@ -30,6 +31,15 @@ compose-down-v:
 compose-ps:
 	docker compose $(docker_files) ps
 
+compose-start:
+	docker compose $(docker_files) start
+
+compose-stop:
+	docker compose $(docker_files) stop
+
+compose-restart:
+	docker compose $(docker_files) restart
+
 # kafka ui
 kafka-ui-up:
 	docker compose -f docker-compose.kafka-ui.yaml up -d
@@ -56,6 +66,9 @@ kc-start:
 kc-stop:
 	docker compose -f docker-compose.confluent-kafka.yaml stop
 
+kc-restart:
+	docker compose -f docker-compose.confluent-kafka.yaml restart
+
 kc-create-topic:
 	docker exec -it confluent-broker sh -c "kafka-topics --bootstrap-server confluent-broker:9092 --create --topic $(topic)"
 
@@ -78,8 +91,21 @@ kcc-start:
 kcc-stop:
 	docker compose -f docker-compose.confluent-kafka-cluster.yaml stop
 
+kcc-restart:
+	docker compose -f docker-compose.confluent-kafka-cluster.yaml restart
+
 kcc-create-topic:
 	docker exec -it confluent-kafka-1 sh -c "kafka-topics --bootstrap-server confluent-kafka-1:9092 --create --partitions 2 --replication-factor 2 --topic $(topic)"
+
+# All Kafka
+kafka-up:
+	docker compose $(kafka_docker_files) up -d
+
+kafka-down:
+	docker compose $(kafka_docker_files) down
+
+kafka-down-v:
+	docker compose $(kafka_docker_files) down -v
 
 # Rabbit mq kafka
 rq-up:
