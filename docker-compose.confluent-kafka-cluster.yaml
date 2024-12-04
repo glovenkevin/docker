@@ -42,6 +42,7 @@ services:
     volumes:
       - cluster-kafka-data-1:/var/lib/kafka/data
       - cluster-kafka-log-1:/var/log/kafka
+      - cluster-kafka-etc-1:/etc/kafka # make sure the cluster is not changing
 
   confluent-kafka-2:
     image: confluentinc/cp-kafka:6.1.0
@@ -61,12 +62,15 @@ services:
     volumes:
       - cluster-kafka-data-2:/var/lib/kafka/data
       - cluster-kafka-log-2:/var/log/kafka
+      - cluster-kafka-etc-2:/etc/kafka # make sure the cluster is not changing
 
 volumes:
   cluster-kafka-data-1:
   cluster-kafka-log-1:
+  cluster-kafka-etc-1:
   cluster-kafka-data-2:
   cluster-kafka-log-2:
+  cluster-kafka-etc-2:
   cluster-zookeeper-1:
   cluster-zookeeper-log-1:
   cluster-zookeeper-2:
