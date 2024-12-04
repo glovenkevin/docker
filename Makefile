@@ -44,6 +44,9 @@ kc-up:
 kc-down:
 	docker compose -f docker-compose.confluent-kafka.yaml down
 
+kc-down-v:
+	docker compose -f docker-compose.confluent-kafka.yaml down -v
+
 kc-start:
 	docker compose -f docker-compose.confluent-kafka.yaml start
 
@@ -62,6 +65,9 @@ kcc-up:
 
 kcc-down:
 	docker compose -f docker-compose.confluent-kafka-cluster.yaml down
+
+kcc-down-v:
+	docker compose -f docker-compose.confluent-kafka-cluster.yaml down -v
 
 kcc-start:
 	docker compose -f docker-compose.confluent-kafka-cluster.yaml start
