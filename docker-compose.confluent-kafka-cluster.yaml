@@ -12,6 +12,8 @@ services:
     volumes:
       - cluster-zookeeper-1:/var/lib/zookeeper/data
       - cluster-zookeeper-log-1:/var/lib/zookeeper/log
+    networks:
+      - kafka-cluster
 
   confluent-zookeeper-2:
     image: confluentinc/cp-zookeeper:6.1.0
@@ -23,6 +25,8 @@ services:
     volumes:
       - cluster-zookeeper-2:/var/lib/zookeeper/data
       - cluster-zookeeper-log-2:/var/lib/zookeeper/log
+    networks:
+      - kafka-cluster
 
   confluent-kafka-1:
     image: confluentinc/cp-kafka:6.1.0
@@ -43,6 +47,8 @@ services:
       - cluster-kafka-data-1:/var/lib/kafka/data
       - cluster-kafka-log-1:/var/log/kafka
       - cluster-kafka-etc-1:/etc/kafka # make sure the cluster is not changing
+    networks:
+      - kafka-cluster
 
   confluent-kafka-2:
     image: confluentinc/cp-kafka:6.1.0
@@ -63,6 +69,8 @@ services:
       - cluster-kafka-data-2:/var/lib/kafka/data
       - cluster-kafka-log-2:/var/log/kafka
       - cluster-kafka-etc-2:/etc/kafka # make sure the cluster is not changing
+    networks:
+      - kafka-cluster
 
 volumes:
   cluster-kafka-data-1:

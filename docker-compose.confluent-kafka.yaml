@@ -11,9 +11,11 @@ services:
     volumes:
       - zookeeper-data:/var/lib/zookeeper/data
       - zookeeper-log:/var/lib/zookeeper/log
+    networks:
+      - kafka-single-node
 
   confluent-broker:
-    image: confluentinc/cp-server:6.1.0
+    image: confluentinc/cp-kafka:6.1.0
     hostname: broker
     container_name: confluent-broker
     depends_on:
@@ -23,26 +25,29 @@ services:
       - "29101:9101"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'confluent-zookeeper:2181'
+      KAFKA_ZOOKEEPER_CONNECT: confluent-zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://confluent-broker:9092,PLAINTEXT_HOST://localhost:39092
-      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      # KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_JMX_PORT: 9101
-      KAFKA_JMX_HOSTNAME: localhost
+      # KAFKA_JMX_PORT: 9101
+      # KAFKA_JMX_HOSTNAME: localhost
       KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: confluent-broker:9092
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-      CONFLUENT_METRICS_ENABLE: 'true'
-      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+      # CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: confluent-broker:9092
+      # CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      # CONFLUENT_METRICS_ENABLE: 'true'
+      # CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
     volumes:
       - kafka-data:/var/lib/kafka/data
       - kafka-log:/var/log/kafka
+      - kafka-etc:/etc/kafka # make sure the cluster is not changing
+    networks:
+      - kafka-single-node
 
   confluent-schema-registry:
     image: confluentinc/cp-schema-registry:6.1.0
@@ -56,9 +61,12 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'confluent-broker:9092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    networks:
+      - kafka-single-node
 
 volumes:
   kafka-data:
   kafka-log:
+  kafka-etc:
   zookeeper-data:
   zookeeper-log:
