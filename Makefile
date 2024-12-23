@@ -122,3 +122,13 @@ rq-up:
 
 rq-down:
 	docker compose -f docker-compose.rabbit-mq.yaml down
+
+# Postgre
+postgre-up:
+	docker compose -f docker-compose.postgresql.yaml up -d
+
+postgre-down:
+	docker compose -f docker-compose.postgresql.yaml down
+
+postgre-restart:
+	docker compose -f docker-compose.postgresql.yaml restart
