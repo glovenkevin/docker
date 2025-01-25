@@ -14,6 +14,9 @@ setup-network:
 
 setup: setup-postgre setup-rabbitmq setup-network
 
+ps:
+	docker compose $(docker_files) ps
+
 tearup:
 	docker volume rm local-postgre local-confluent-kafka local-data-rabbitmq \
 		local-log-rabbitmq
