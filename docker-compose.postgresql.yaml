@@ -4,15 +4,15 @@ include:
 services:
   postgresql:
     container_name: postgresql
-    image: postgres:14.13-alpine
+    image: ${PG_IMAGE}
     ports:
-      - "5432:5432"
+      - "${PG_PORT}:5432"
     environment:
-      TZ: UTC
-      PGTZ: UTC
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      TZ: ${PG_TZ}
+      PGTZ: ${PG_TZ}
+      POSTGRES_DB: ${PG_DATABASE}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
     volumes:
       - postgresql-data:/var/lib/postgresql/data
 

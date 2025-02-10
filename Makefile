@@ -3,7 +3,8 @@ DOCKER_FILES = $(shell find docker-compose.*.yaml | sed 's/^/-f /')
 KAFKA_DOCKER_FILES = $(shell find docker-compose.confluent-kafka*.yaml | sed 's/^/-f /')
 
 DOCKER = docker
-COMPOSE = $(DOCKER) compose
+COMPOSE_ARGS = --env-file ./config/.env
+COMPOSE = $(DOCKER) compose $(COMPOSE_ARGS)
 EXEC = $(DOCKER) exec
 
 setup-postgre:

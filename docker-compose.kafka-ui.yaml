@@ -4,17 +4,17 @@ include:
 services:
   kafka-ui:
     container_name: kafka-ui
-    image: provectuslabs/kafka-ui:latest
+    image: ${KAFKAUI_IMAGE}
     environment:
       DYNAMIC_CONFIG_ENABLED: "true"
-      KAFKA_CLUSTERS_0_NAME: wOS-development
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: zoka01-alpha.w6.co:9092,zoka02-alpha.w6.co:9092,zoka03-alpha.w6.co:9092
-      KAFKA_CLUSTERS_1_NAME: confluentinc
-      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: confluent-broker:9092
-      KAFKA_CLUSTERS_2_NAME: cluster-confluentinc
-      KAFKA_CLUSTERS_2_BOOTSTRAPSERVERS: confluent-kafka-1:9092,confluent-kafka-2:9092,confluent-kafka-3:9092
+      KAFKA_CLUSTERS_0_NAME: ${KAFKA_CLUSTERS_0_NAME}
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS}
+      KAFKA_CLUSTERS_1_NAME: ${KAFKA_CLUSTERS_1_NAME}
+      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: ${KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS}
+      KAFKA_CLUSTERS_2_NAME: ${KAFKA_CLUSTERS_2_NAME}
+      KAFKA_CLUSTERS_2_BOOTSTRAPSERVERS: ${KAFKA_CLUSTERS_2_BOOTSTRAPSERVERS}
     ports:
-      - "8000:8080"
+      - "${KAFKAUI_PORT}:8080"
     networks:
       - kafka-cluster
       - kafka-single-node
