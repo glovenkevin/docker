@@ -20,6 +20,8 @@ services:
       - DB_POSTGRESDB_PASSWORD=${N8N_POSTGRES_PASSWORD}
       - GENERIC_TIMEZONE=${N8N_POSTGRES_TIMEZONE}
       - TZ=${N8N_POSTGRES_TIMEZONE}
+    depends_on:
+      - n8n-postgres
     networks:
       - n8n
 
