@@ -1,0 +1,49 @@
+include:
+  - network.yaml
+
+services:
+  n8n:
+    container_name: n8n
+    image: n8nio/n8n:1.97.1
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - n8n-log:/var/log/n8n
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=n8n-postgres
+      - DB_POSTGRESDB_PORT=${N8N_POSTGRES_PORT}
+      - DB_POSTGRESDB_SCHEMA=public
+      - DB_POSTGRESDB_DATABASE=${N8N_POSTGRES_DATABASE}
+      - DB_POSTGRESDB_USER=${N8N_POSTGRES_USER}
+      - DB_POSTGRESDB_PASSWORD=${N8N_POSTGRES_PASSWORD}
+      - GENERIC_TIMEZONE=${N8N_POSTGRES_TIMEZONE}
+      - TZ=${N8N_POSTGRES_TIMEZONE}
+    networks:
+      - n8n
+
+  n8n-postgres:
+    container_name: n8n-postgres
+    image: bitnami/postgresql:17.5.0
+    volumes:
+      - n8n-postgres-data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_DATABASE=${N8N_POSTGRES_DATABASE}
+      - POSTGRESQL_PORT_NUMBER=${N8N_POSTGRES_PORT}
+      - POSTGRESQL_USERNAME=${N8N_POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${N8N_POSTGRES_PASSWORD}
+      - POSTGRESQL_TIMEZONE=${N8N_POSTGRES_TIMEZONE}
+    networks:
+      - n8n
+
+volumes:
+  n8n-data:
+    external: true
+    name: local-data-n8n
+  n8n-log:
+    external: true
+    name: local-log-n8n
+  n8n-postgres-data:
+    external: true
+    name: local-data-n8n-postgres

@@ -17,7 +17,13 @@ setup-rabbitmq:
 setup-network:
 	$(DOCKER) network create development
 
-setup: setup-postgre setup-rabbitmq setup-network
+setup-n8n:
+	$(DOCKER) volume create local-data-n8n
+	$(DOCKER) volume create local-log-n8n
+	$(DOCKER) volume create local-data-n8n-postgres
+	$(DOCKER) network create n8n
+
+setup: setup-postgre setup-rabbitmq setup-network setup-n8n
 
 ps:
 	$(COMPOSE) $(DOCKER_FILES) ps
@@ -140,3 +146,19 @@ postgre-down:
 
 postgre-restart:
 	$(COMPOSE) -f docker-compose.postgresql.yaml restart
+
+# n8n
+n8n-up:
+	$(COMPOSE) -f docker-compose.n8n.yaml up -d
+
+n8n-down:
+	$(COMPOSE) -f docker-compose.n8n.yaml down
+
+n8n-down-v:
+	$(COMPOSE) -f docker-compose.n8n.yaml down -v
+
+n8n-restart:
+	$(COMPOSE) -f docker-compose.n8n.yaml restart
+
+n8n-log:
+	$(COMPOSE) -f docker-compose.n8n.yaml logs

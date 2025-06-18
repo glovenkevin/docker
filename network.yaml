@@ -4,3 +4,5 @@ networks:
     external: true
   kafka-single-node:
   kafka-cluster:
+  n8n:
+    external: true
