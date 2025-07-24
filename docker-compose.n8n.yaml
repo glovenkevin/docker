@@ -4,7 +4,7 @@ include:
 services:
   n8n:
     container_name: n8n
-    image: n8nio/n8n:1.97.1
+    image: n8nio/n8n:1.104.1
     ports:
       - "5678:5678"
     volumes:
@@ -49,3 +49,6 @@ volumes:
   n8n-postgres-data:
     external: true
     name: local-data-n8n-postgres
+
+# email: kcchandra@waresix.com
+# password: 123Kev1n23
