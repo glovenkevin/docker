@@ -49,6 +49,3 @@ volumes:
   n8n-postgres-data:
     external: true
     name: local-data-n8n-postgres
-
-# email: kcchandra@waresix.com
-# password: 123Kev1n23
