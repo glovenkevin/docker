@@ -3,7 +3,7 @@ include:
 
 services:
   apache-broker:
-    image: apache/kafka:3.8.1
+    image: ${APACHE_KAFKA_IMAGE}
     container_name: apache-kafka
     environment:
       - KAFKA_NODE_ID=1
