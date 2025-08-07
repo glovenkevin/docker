@@ -34,7 +34,8 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.0 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
     go install golang.org/x/tools/gopls@v0.12.0 && \
     go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2 && \
-    go install github.com/go-delve/delve/cmd/dlv@v1.20.2
+    go install github.com/go-delve/delve/cmd/dlv@v1.20.2 && \
+    go install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.4
 
 # Set working directory
 WORKDIR /workspace
