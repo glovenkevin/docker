@@ -1,47 +1,44 @@
-FROM golang:1.20.4-bullseye
+# syntax=docker/dockerfile:1.4
+FROM golang:1.20.5-alpine3.18
 
-ARG EXPOSED_PORT=10000
-
-# Install common utilities, zsh, Oh My Zsh, git, and protobuf-compiler
-RUN apt-get update && \
-    apt-get install -y \
-        zsh \
+# Install common utilities, zsh, git, and protobuf-compiler
+RUN apk update && \
+    apk add --no-cache \
         git \
+        zsh \
+        bash \
+        make \
         curl \
-        wget \
-        ca-certificates \
-        unzip \
-        htop \
-        less \
-        nano \
+        libstdc++ \
         sudo \
-        lsb-release \
-        procps \
-        locales \
         openssh-client \
         gnupg \
-        software-properties-common \
-        protobuf-compiler && \
-    # Install Oh My Zsh
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || true && \
-    # Set zsh as default shell for root
-    chsh -s $(which zsh) root && \
+        protobuf && \
     # Clean up
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    rm -rf /var/cache/apk/*
 
 # Install Go tools (as in postCreateCommand)
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.0 && \
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
-    go install golang.org/x/tools/gopls@v0.12.0 && \
-    go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2 && \
-    go install github.com/go-delve/delve/cmd/dlv@v1.20.2 && \
-    go install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.4
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.0 && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    go install golang.org/x/tools/gopls@v0.15.3 && \
+    go install github.com/go-delve/delve/cmd/dlv@v1.22.1 && \
+    go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.55.2 && \
+    go install github.com/vektra/mockery/v2@v2.38.0
 
 # Set working directory
 WORKDIR /workspace
 
-# Expose port (as per forwardPorts)
-EXPOSE $EXPOSED_PORT
+# Configure global git ignore for pb and vendor folders
+RUN git config --global core.excludesfile ~/.gitignore_global && \
+    echo "pb/" >> ~/.gitignore_global && \
+    echo "vendor/" >> ~/.gitignore_global && \
+    echo ".devcontainer/" >> ~/.gitignore_global
+
+# Configure git to use SSH instead of HTTPS for GitHub
+RUN git config --global url."ssh://git@work/".insteadOf https://github.com/
 
 # Set default user
 USER root
