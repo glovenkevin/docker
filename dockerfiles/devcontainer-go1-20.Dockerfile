@@ -5,15 +5,14 @@ FROM golang:1.20.5-alpine3.18
 RUN apk update && \
     apk add --no-cache \
         git \
-        zsh \
         bash \
         make \
         curl \
         libstdc++ \
         sudo \
         openssh-client \
-        gnupg \
-        protobuf && \
+        protobuf \
+        protobuf-dev && \
     # Clean up
     rm -rf /var/cache/apk/*
 
@@ -26,19 +25,16 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
     go install golang.org/x/tools/gopls@v0.15.3 && \
     go install github.com/go-delve/delve/cmd/dlv@v1.22.1 && \
     go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.55.2 && \
-    go install github.com/vektra/mockery/v2@v2.38.0
+    go install github.com/vektra/mockery/v2@v2.38.0 && \
+    go install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.5
+
+# Copy git configuration and ignore files to home directory
+COPY ./configs/example.gitconfig /root/.gitconfig
+COPY ./configs/example.cursorignore /root/.cursorignore
+COPY ./configs/example.gitignore /root/.gitignore_global
 
 # Set working directory
 WORKDIR /workspace
-
-# Configure global git ignore for pb and vendor folders
-RUN git config --global core.excludesfile ~/.gitignore_global && \
-    echo "pb/" >> ~/.gitignore_global && \
-    echo "vendor/" >> ~/.gitignore_global && \
-    echo ".devcontainer/" >> ~/.gitignore_global
-
-# Configure git to use SSH instead of HTTPS for GitHub
-RUN git config --global url."ssh://git@work/".insteadOf https://github.com/
 
 # Set default user
 USER root

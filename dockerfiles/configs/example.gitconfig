@@ -1,0 +1,12 @@
+[user]
+	name = kcchandra
+	email = kcchandra@waresix.com
+
+[commit]
+	gpgsign = false
+
+[url "ssh://git@work/"]
+	insteadOf = https://github.com/
+
+[core]
+	excludesfile = ~/.gitignore_global
