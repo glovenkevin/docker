@@ -43,13 +43,13 @@ USER vscode
 RUN sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # Configure zsh for vscode user
-RUN echo 'ZSH_THEME="agnoster"' >> ~/.zshrc && \
-    echo 'plugins=(git zsh-syntax-highlighting)' >> ~/.zshrc
+RUN echo 'ZSH_THEME="agnoster"' >> /home/vscode/.zshrc && \
+    echo 'plugins=(git zsh-syntax-highlighting)' >> /home/vscode/.zshrc
 
 # Setup zsh for vscode user
-COPY ./configs/example.gitconfig ~/.gitconfig
-COPY ./configs/example.cursorignore ~/.cursorignore
-COPY ./configs/example.gitignore ~/.gitignore_global
+COPY --chown=vscode:vscode ./configs/example.gitconfig /home/vscode/.gitconfig
+COPY --chown=vscode:vscode ./configs/example.cursorignore /home/vscode/.cursorignore
+COPY --chown=vscode:vscode ./configs/example.gitignore /home/vscode/.gitignore_global
 
 WORKDIR /workspace
 SHELL ["/bin/zsh", "-c"]
