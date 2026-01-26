@@ -2,26 +2,26 @@ SHELL=/bin/sh
 DOCKER_FILES = $(shell find docker-compose.*.yaml | sed 's/^/-f /')
 KAFKA_DOCKER_FILES = $(shell find docker-compose.confluent-kafka*.yaml | sed 's/^/-f /')
 
-DOCKER = docker
+EXECUTOR = podman
 COMPOSE_ARGS = --env-file ./config/.env
-COMPOSE = $(DOCKER) compose $(COMPOSE_ARGS)
-EXEC = $(DOCKER) exec
+COMPOSE = $(EXECUTOR) compose $(COMPOSE_ARGS)
+EXEC = $(EXECUTOR) exec
 
 setup-postgre:
-	$(DOCKER) volume create local-postgre
+	$(EXECUTOR) volume create local-postgre
 
 setup-rabbitmq:
-	$(DOCKER) volume create local-data-rabbitmq
-	$(DOCKER) volume create local-log-rabbitmq
+	$(EXECUTOR) volume create local-data-rabbitmq
+	$(EXECUTOR) volume create local-log-rabbitmq
 
 setup-network:
-	$(DOCKER) network create development
+	$(EXECUTOR) network create development
 
 setup-n8n:
-	$(DOCKER) volume create local-data-n8n
-	$(DOCKER) volume create local-log-n8n
-	$(DOCKER) volume create local-data-n8n-postgres
-	$(DOCKER) network create n8n
+	$(EXECUTOR) volume create local-data-n8n
+	$(EXECUTOR) volume create local-log-n8n
+	$(EXECUTOR) volume create local-data-n8n-postgres
+	$(EXECUTOR) network create n8n
 
 setup: setup-postgre setup-rabbitmq setup-network setup-n8n
 
@@ -29,9 +29,9 @@ ps:
 	$(COMPOSE) $(DOCKER_FILES) ps
 
 tearup:
-	$(DOCKER) volume rm local-postgre local-confluent-kafka local-data-rabbitmq \
+	$(EXECUTOR) volume rm local-postgre local-confluent-kafka local-data-rabbitmq \
 		local-log-rabbitmq
-	$(DOCKER) network rm development
+	$(EXECUTOR) network rm development
 
 compose-up:
 	$(COMPOSE) $(DOCKER_FILES) up -d
@@ -162,3 +162,13 @@ n8n-restart:
 
 n8n-log:
 	$(COMPOSE) -f docker-compose.n8n.yaml logs
+
+# Redis
+redis-up:
+	$(COMPOSE) -f docker-compose.redis.yaml up -d
+
+redis-down:
+	$(COMPOSE) -f docker-compose.redis.yaml down
+
+redis-restart:
+	$(COMPOSE) -f docker-compose.redis.yaml restart
