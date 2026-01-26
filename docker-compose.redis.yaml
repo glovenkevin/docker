@@ -1,0 +1,9 @@
+include:
+  - network.yaml
+
+services:
+  redis:
+    image: ${REDIS_IMAGE}
+    container_name: redis
+    ports:
+      - 6379:6379
