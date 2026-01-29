@@ -172,3 +172,6 @@ redis-down:
 
 redis-restart:
 	$(COMPOSE) -f docker-compose.redis.yaml restart
+
+redis-log:
+	$(COMPOSE) -f docker-compose.redis.yaml logs
