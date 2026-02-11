@@ -28,6 +28,15 @@ setup: setup-postgre setup-rabbitmq setup-network setup-n8n
 ps:
 	$(COMPOSE) $(DOCKER_FILES) ps
 
+container: 
+	$(EXECUTOR) container ls
+
+images:
+	$(EXECUTOR) image ls
+
+image-prune:
+	$(EXECUTOR) image prune -a
+
 tearup:
 	$(EXECUTOR) volume rm local-postgre local-confluent-kafka local-data-rabbitmq \
 		local-log-rabbitmq
