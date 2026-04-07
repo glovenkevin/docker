@@ -1,0 +1,1004 @@
+{
+  "name": "Pull Request Worker",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        1040
+      ],
+      "id": "9d9a9145-ff32-4eba-bf2d-3ea84e6848b3",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1y5--pnG_4sayuomVG9qJy0wuOmOHGofAGX6AMTxCKdE",
+          "mode": "list",
+          "cachedResultName": "Sheet Serba Guna",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y5--pnG_4sayuomVG9qJy0wuOmOHGofAGX6AMTxCKdE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1109092898,
+          "mode": "list",
+          "cachedResultName": "wos-repositories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y5--pnG_4sayuomVG9qJy0wuOmOHGofAGX6AMTxCKdE/edit#gid=1109092898"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -1136,
+        944
+      ],
+      "id": "56311ac5-eab6-4c7c-8500-a357689db719",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fcYIzmTQVr4b3hHf",
+          "name": "Kevin Google Sheet Oauth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */3 * * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1360,
+        848
+      ],
+      "id": "afb8c034-1001-4ad0-89f1-24552ec1e062",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "repository",
+        "operation": "getPullRequests",
+        "owner": {
+          "__rl": true,
+          "value": "waresix",
+          "mode": "list",
+          "cachedResultName": "waresix",
+          "cachedResultUrl": "https://github.com/waresix"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $json.repository }}",
+          "mode": "name"
+        },
+        "returnAll": true,
+        "getRepositoryPullRequestsFilters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -464,
+        960
+      ],
+      "id": "fc793e33-8b11-45de-be59-f2ff23c0d54e",
+      "name": "Get Pull Requests",
+      "webhookId": "013d45b9-8d77-4c6c-9f4c-7260c73478ee",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "n4zssXzve4HvHuIZ",
+          "name": "Github Kevin"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "spaceId": "spaces/AAQAoDyWsig",
+        "messageUi": {
+          "text": "=✅ *[AUTO APPROVE REVIEW]*\n\nRepo Name: {{ $('Extract Review').item.json.repo_name }}\nPR URL: {{ $json.html_url }}\nCommit ID: {{ $json.commit_id }}\n\n<users/kcchandra@waresix.com>\n😍😍😍 "
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        880,
+        592
+      ],
+      "id": "0bb4ecc1-db3a-4e02-85e3-0c6c9dc71a78",
+      "name": "Notify Approve",
+      "webhookId": "c5b67506-8826-4c3c-938d-3bbd8bb7e466",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "review",
+        "owner": {
+          "__rl": true,
+          "value": "waresix",
+          "mode": "list",
+          "cachedResultName": "waresix",
+          "cachedResultUrl": "https://github.com/waresix"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $json.repo_name }}",
+          "mode": "name"
+        },
+        "pullRequestNumber": "={{ $json.pr_number }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        496
+      ],
+      "id": "ef4c2c7c-c8a4-4918-9c4f-1b3146b9fe54",
+      "name": "Approve Review",
+      "webhookId": "7232f511-cb4a-4488-9044-b1e898f1ea88",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "n4zssXzve4HvHuIZ",
+          "name": "Github Kevin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "review",
+        "operation": "getAll",
+        "owner": {
+          "__rl": true,
+          "value": "waresix",
+          "mode": "list",
+          "cachedResultName": "waresix",
+          "cachedResultUrl": "https://github.com/waresix"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $json.data.head.repo.name }}",
+          "mode": "name"
+        },
+        "pullRequestNumber": "={{ $json.data.number }}",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -16,
+        512
+      ],
+      "id": "060bb2f2-eacb-41db-b746-1637d41efa69",
+      "name": "Get Reviews",
+      "webhookId": "02f7196b-6fa4-41ff-8dc8-a0047aa4d521",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "n4zssXzve4HvHuIZ",
+          "name": "Github Kevin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const myUserLoginID = 'kcchandra-w6'\nlet reviews = $input.all()\n\nconst idx = parseInt($runIndex.toString())\nconst pr_data = $('Auto Approve').all()[idx]\nconst data = pr_data.json.data\n\nconst result = {\n  valid: true,\n  repo_name: data.head.repo.name,\n  pr_number: data.number\n}\n\nif (data.user.login === myUserLoginID) { // myself\n  result.valid = false\n  return result\n}\n\nif (reviews.length == 1 && \n    Object.keys(reviews[0].json).length == 0) {\n  return result\n}\n\nfor (const rev of reviews) {\n  const item = rev.json\n  \n  if (item.user.login === myUserLoginID && item.state == 'APPROVED') {\n    result.valid = false\n    return result\n  }\n}\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        512
+      ],
+      "id": "d3ab5b28-3de8-4323-b4fb-d6e77cdb06c3",
+      "name": "Extract Review",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d1a10855-85cf-45f1-8a6b-8bef5d11e615",
+              "leftValue": "={{ $json.disabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -912,
+        944
+      ],
+      "id": "0877d31f-10b2-4a99-b000-84170ebe0fa1",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const TYPE_NEED_REVIEW = 'need_review'\nconst TYPE_AUTO_APPROVE = 'auto_approve'\nconst TYPE_IGNORE = 'ignore'\n\nlet errMessage = $json.error || \"\"\nif (errMessage != \"\") {\n  return {\n    data: $json,\n    type: 'error',\n    error: errMessage\n  }\n}\n\nlet ref = $json.head.ref // branch name - source branch\nlet baseRef = $json.base.ref // branch name - target branch\nlet myUserLogin = 'kcchandra-w6'\n\nif (baseRef == 'master') {\n  return {\n    data: $json,\n    type: TYPE_AUTO_APPROVE\n  }\n}\n\n// Urgent Auto \nfor (const label of $json.labels) {\n  if (label.name == 'help wanted') {\n    return {\n      data: $json,\n      type: TYPE_AUTO_APPROVE\n    }\n  }\n}\n\n// PR created by ME\nif ($json.user.login == myUserLogin) {\n  return {\n    data: $json,\n    type: TYPE_IGNORE\n  }\n}\n\nconst validBaseBranch = baseRef.startsWith('test01/') || baseRef.startsWith('rs/') || baseRef.startsWith('urgent/')\nconst validPullBranch = ref.startsWith('feature/') || ref.startsWith('test01/') || ref.startsWith('rs/')\nif (validBaseBranch && validPullBranch) {\n  return {\n    data: $json,\n    type: TYPE_AUTO_APPROVE\n  }\n}\n\nconst validBaseBranchNeedReview = baseRef.startsWith('feature/') || baseRef.startsWith('feat/') || baseRef.startsWith('chore/') || baseRef.startsWith('fix/') || baseRef.startsWith('feature/') \nif (validBaseBranchNeedReview) {\n  return {\n    data: $json,\n    type: TYPE_NEED_REVIEW\n  }\n}\n\nreturn {\n  data: $json,\n  type: TYPE_IGNORE\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        1024
+      ],
+      "id": "fd33a572-0214-4f47-9931-70efdd3bb0e9",
+      "name": "Process Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "let filterredData = $input.all()\nlet pullRequestLink= Array()\n\nfilterredData.forEach((val) => {\n  let data = val.json\n  const repoName = data.repo_name\n  const link = data.pr_html_link\n  const prNumber = data.pr_number\n  pullRequestLink.push(`- <${link}|${repoName} [PR ${prNumber}]>`)\n})\n\nlet combined = pullRequestLink.join('\\n')\n\nreturn {\n  total_data: pullRequestLink.length,\n  msg: combined\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -208
+      ],
+      "id": "f37ac68b-5f29-4a8f-bc13-e0f0aee1209f",
+      "name": "Reconstruct Auto Review Notification"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "spaceId": "spaces/AAQAoDyWsig",
+        "messageUi": {
+          "text": "=⚠️ *[REMINDER PR REVIEW]* \n\n{{ $json.msg }}\n\nTag Me: <users/kcchandra@waresix.com>"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -224
+      ],
+      "id": "eef27438-4b5a-4334-b6c6-b15f81552d09",
+      "name": "Notify Need Review",
+      "webhookId": "8b1da333-3f40-494a-97f9-968592c3a705",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5d3c776c-a448-4f5c-81f3-971d1578e6e3",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        960
+      ],
+      "id": "d3e59516-0291-4bef-8111-533eba676a80",
+      "name": "Check if PR is Empty"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  data: null,\n  type: 'ignore',\n  error: null\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        1216
+      ],
+      "id": "b79988ae-243b-45c9-a453-6461dadcceef",
+      "name": "Populate Empty State"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fabd9ec6-4962-4482-bdc3-d6dffa0c3645",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        512
+      ],
+      "id": "30911758-7d50-4a1d-82c6-08c10e688e41",
+      "name": "Check Is Valid"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -240,
+        496
+      ],
+      "id": "fc47fd7b-b57e-4948-90fb-3f405f05968a",
+      "name": "Loop Each PR"
+    },
+    {
+      "parameters": {
+        "batchSize": 15,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -688,
+        944
+      ],
+      "id": "e2d8f144-a3a1-48fd-be44-31790bb43d55",
+      "name": "Loop All Repository"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -240,
+        -32
+      ],
+      "id": "2591223f-afab-4d27-a3e7-454dc5ae9443",
+      "name": "Loop Need Review"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6b617096-5021-4d96-9abb-3cd19b88461e",
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "need_review",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -464,
+        -32
+      ],
+      "id": "0a1c8759-a3ea-40a6-827f-2a077ea48255",
+      "name": "Need Review"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6b617096-5021-4d96-9abb-3cd19b88461e",
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "auto_approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -464,
+        496
+      ],
+      "id": "d8729885-459b-4311-9877-ea0f463d7864",
+      "name": "Auto Approve"
+    },
+    {
+      "parameters": {
+        "jsCode": "const myUserLoginID = 'kcchandra-w6'\nlet reviews = $input.all()\n\nconst idx = parseInt($runIndex.toString())\nconst pr_data = $('Need Review').all()[idx]\nconst data = pr_data.json.data\n\nconst result = {\n  valid: true,\n  repo_name: data.head.repo.name,\n  pr_html_link: data.html_url,\n  pr_number: data.number\n}\n\nif (data.user.login == myUserLoginID) { // myself\n  result.valid = false\n  return result\n}\n\nif (reviews.length == 1 && \n    Object.keys(reviews[0].json).length == 0) {\n  return result\n}\n\nconst currentDate = new Date()\nfor (const rev of reviews) {\n  const item = rev.json\n\n  if (Object.keys(item).length == 0) {\n    continue\n  }\n  \n  if (item.user?.login !== myUserLoginID) {\n    continue\n  }\n\n  const isApproved = item.state === 'APPROVED'\n  const isReqChanges = item.state === 'CHANGES_REQUESTED'\n  \n  if (isApproved || isReqChanges) {\n    result.valid = false\n    return result\n  }\n\n  if (item.body.includes('postpone')) {\n    const bodies = item.body.split(' ') || []\n    if (bodies.length !== 2) {\n      continue\n    }\n    \n    const postponeDateUnix = Date.parse(bodies[1])\n    if (isNaN(postponeDateUnix)) {\n      continue\n    }\n\n    const diff = currentDate.getTime() - postponeDateUnix\n    if (diff <= 0) {\n      result.valid = false\n      return result\n    }\n  }\n}\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        176
+      ],
+      "id": "18b05651-570d-489e-875e-9cef7dd68b3c",
+      "name": "Check Review"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "eac8fddb-4b36-44e1-85b6-90baadb3d89c",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        16,
+        -208
+      ],
+      "id": "263d455b-3cc6-4e9b-8f9b-5c46ec122561",
+      "name": "Filter Valid Need Review PR"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "review",
+        "operation": "getAll",
+        "owner": {
+          "__rl": true,
+          "value": "waresix",
+          "mode": "list",
+          "cachedResultName": "waresix",
+          "cachedResultUrl": "https://github.com/waresix"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $json.data.head.repo.name }}",
+          "mode": "name"
+        },
+        "pullRequestNumber": "={{ $json.data.number }}",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "f44c054a-d7c6-44f8-8335-97f28317db9e",
+      "name": "Get PR Reviews",
+      "webhookId": "02f7196b-6fa4-41ff-8dc8-a0047aa4d521",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "n4zssXzve4HvHuIZ",
+          "name": "Github Kevin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $json.data.head.repo.owner.login }}/{{ $json.data.head.repo.name }}/issues/{{ $json.data.number }}/comments",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        0,
+        160
+      ],
+      "id": "9dc90194-8aae-492d-93a1-82f6e8d3395b",
+      "name": "Get PR Issues Comments",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "n4zssXzve4HvHuIZ",
+          "name": "Github Kevin"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "da741bcf-af4e-4fac-bdcf-89bf8fb40169",
+      "name": "Merge Reviews And Comments",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1d39521d-85eb-46af-baf1-e6c22a29a583",
+              "leftValue": "={{ $json.total_data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        -208
+      ],
+      "id": "31d0d830-5e97-4ac4-94d6-4df8a4866520",
+      "name": "If Any To Be Informed"
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2025-07-31T13:03:00.017+07:00",
+          "Readable date": "July 31st 2025, 1:03:00 pm",
+          "Readable time": "1:03:00 pm",
+          "Day of week": "Thursday",
+          "Year": "2025",
+          "Month": "July",
+          "Day of month": "31",
+          "Hour": "13",
+          "Minute": "03",
+          "Second": "00",
+          "Timezone": "Asia/Jakarta (UTC+07:00)"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pull Requests": {
+      "main": [
+        [
+          {
+            "node": "Check if PR is Empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Approve": {
+      "main": [
+        [
+          {
+            "node": "Loop Each PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approve Review": {
+      "main": [
+        [
+          {
+            "node": "Notify Approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Reviews": {
+      "main": [
+        [
+          {
+            "node": "Extract Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Review": {
+      "main": [
+        [
+          {
+            "node": "Check Is Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop All Repository",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Data": {
+      "main": [
+        [
+          {
+            "node": "Loop All Repository",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconstruct Auto Review Notification": {
+      "main": [
+        [
+          {
+            "node": "If Any To Be Informed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if PR is Empty": {
+      "main": [
+        [
+          {
+            "node": "Process Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Populate Empty State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Populate Empty State": {
+      "main": [
+        [
+          {
+            "node": "Loop All Repository",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Is Valid": {
+      "main": [
+        [
+          {
+            "node": "Approve Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Each PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Each PR": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop All Repository": {
+      "main": [
+        [
+          {
+            "node": "Auto Approve",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Need Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Pull Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Need Review": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid Need Review PR",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get PR Reviews",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get PR Issues Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need Review": {
+      "main": [
+        [
+          {
+            "node": "Loop Need Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Approve": {
+      "main": [
+        [
+          {
+            "node": "Loop Each PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Review": {
+      "main": [
+        [
+          {
+            "node": "Loop Need Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Need Review PR": {
+      "main": [
+        [
+          {
+            "node": "Reconstruct Auto Review Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get PR Reviews": {
+      "main": [
+        [
+          {
+            "node": "Merge Reviews And Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get PR Issues Comments": {
+      "main": [
+        [
+          {
+            "node": "Merge Reviews And Comments",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Reviews And Comments": {
+      "main": [
+        [
+          {
+            "node": "Check Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Any To Be Informed": {
+      "main": [
+        [
+          {
+            "node": "Notify Need Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "NKttgv0ZnWTjryEh"
+  },
+  "versionId": "e0da4f13-df8d-4a6f-9c9d-e73f5a9d8e20",
+  "meta": {
+    "instanceId": "0104f99eaab1f0efa64372adbca739144ca4431bbd27b7656e6fe14f06b39d08"
+  },
+  "id": "c8wCtNgmQZK0KpPm",
+  "tags": []
+}

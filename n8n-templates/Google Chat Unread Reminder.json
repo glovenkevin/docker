@@ -1,0 +1,1014 @@
+{
+  "name": "Google Chat Unread Reminder",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */3 * * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -704,
+        -16
+      ],
+      "id": "06e18736-1beb-4ce0-8382-dc293217d5bf",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        192
+      ],
+      "id": "d07aa741-0ed9-464d-b342-567ed0768447",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://chat.googleapis.com/v1/spaces:findDirectMessage",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleChatOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $json.member.name }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1056,
+        96
+      ],
+      "id": "81244a44-8533-4ec4-83c4-c486f139e42b",
+      "name": "Get Private Direct Message",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://chat.googleapis.com/v1/{{ $json.name }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleChatOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "orderBy",
+              "value": "createTime DESC"
+            },
+            {
+              "name": "showDeleted",
+              "value": "false"
+            },
+            {
+              "name": "pageSize",
+              "value": "20"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1536,
+        80
+      ],
+      "id": "3afe0c71-ee78-44ee-b730-89d4920f5f69",
+      "name": "List of Message from Spaces",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e9220580-9db8-4ab6-be24-8790d06b56a0",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f4e03354-7dd8-4a26-bb58-be1f3968a017",
+              "leftValue": "={{ $json.membershipCount.joinedDirectHumanUserCount }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        96
+      ],
+      "id": "0be5be76-3acd-488b-8cc1-47ce73f8da86",
+      "name": "If Not Error"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "member",
+        "operation": "getAll",
+        "spaceId": "spaces/AAAAsEd_oq4"
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        192
+      ],
+      "id": "97b10538-12b3-4ae7-a473-b0ae3e893e48",
+      "name": "Get Member Mobi Team",
+      "webhookId": "3346d1e3-02f7-44d9-9085-2fbee7c87bc9",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "member",
+        "operation": "getAll",
+        "spaceId": "spaces/AAAA-eUtrJ0"
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -16
+      ],
+      "id": "1898dcc4-594e-4d32-8a21-deed8fa61812",
+      "name": "Get Member wOS",
+      "webhookId": "3346d1e3-02f7-44d9-9085-2fbee7c87bc9",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -64,
+        32
+      ],
+      "id": "c1fe2a28-2d8b-401a-bf59-5dffd0c625ee",
+      "name": "Merge Space Members"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        768,
+        80
+      ],
+      "id": "0bca99d3-4c60-489f-80ab-91974be2e454",
+      "name": "Loop Over Space Member"
+    },
+    {
+      "parameters": {
+        "content": "### Check Private Message\n\n- Pull all the private message\n- for each message check if message has reactions"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        -112
+      ],
+      "id": "dd1a2ce3-ca43-4da0-848d-5d4de0489b5f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "member",
+        "operation": "getAll",
+        "spaceId": "spaces/AAAARGEd0Xg"
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        384
+      ],
+      "id": "0f63c5be-46c3-409d-9423-65ea4e12fed7",
+      "name": "Get Member Navi Team",
+      "webhookId": "3346d1e3-02f7-44d9-9085-2fbee7c87bc9",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let userMappers = new Map()\nlet filtteredMembers = []\n\nfor (const val of $input.all()) {\n  const item = val.json\n\n  let isExists = userMappers.get(item.member.name) == true\n  \n  // let debug = item.member.name == 'users/108475152760910863484'\n  if (!isExists) {\n    userMappers.set(item.member.name, true)\n    filtteredMembers.push(item)\n  }\n\n  // filtteredMembers.push(item)\n}\n\nreturn filtteredMembers\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        80
+      ],
+      "id": "6fb787be-1110-43ae-8774-a6368937cd26",
+      "name": "Filter Duplicate Users",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ba2a8b91-caea-4082-b7ac-7332aa8fc5eb",
+              "leftValue": "={{ $json.member.type }}",
+              "rightValue": "HUMAN",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        80
+      ],
+      "id": "d41b93ad-6c71-495e-9850-ea3da9676638",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "member",
+        "operation": "getAll",
+        "spaceId": "spaces/AAAAOc9Ds10"
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        576
+      ],
+      "id": "e59d244d-f29e-40f9-8cdc-642ea6b45372",
+      "name": "Get Member Engineering",
+      "webhookId": "3346d1e3-02f7-44d9-9085-2fbee7c87bc9",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "19582d30-8e84-4665-a674-3350541a391e",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "notify",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0873f7ea-39c0-4798-8538-81167c864fb6",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "auto_reply",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e8e88622-e0af-41e6-b240-0ab25a70e1b7",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "error",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.ignored_statuses }}",
+                    "rightValue": "={{ $json.status }}",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    },
+                    "id": "9fbd3d27-9dba-4bff-83f6-96cc499d8e31"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1984,
+        48
+      ],
+      "id": "8ec07db0-74dc-4715-a9b5-397be9984a6d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://chat.googleapis.com/v1/spaces/AAQAUxDkYBE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=sFFy3NqB1pjp0emZYO_EI4biAiaLzZC7S_SyK-3M4Oc",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "=*Check Messasage From* <{{ $json.user_id }}>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2608,
+        144
+      ],
+      "id": "c1d879b8-fa25-48a5-a5fd-7549a673e613",
+      "name": "Webhook Chat Bot Reminder"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://chat.googleapis.com/v1/spaces/AAQAUxDkYBE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=sFFy3NqB1pjp0emZYO_EI4biAiaLzZC7S_SyK-3M4Oc",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "=*ERROR REPLY*\n\nMessage: {{ $json.message }}\nUser ID: <{{ $json.user_id }}>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2368,
+        688
+      ],
+      "id": "54d06a43-d1cf-4739-84d8-e6923e37274a",
+      "name": "Webhook Error"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://chat.googleapis.com/v1/spaces/AAQAUxDkYBE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=sFFy3NqB1pjp0emZYO_EI4biAiaLzZC7S_SyK-3M4Oc",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "=*Message Auto Replied For* <{{ $('Check Every Private Message').item.json.user_id }}>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2608,
+        400
+      ],
+      "id": "63f7febc-a41a-4bef-88ea-da1efb1cba1f",
+      "name": "Webhook Chat Auto Replied"
+    },
+    {
+      "parameters": {
+        "jsCode": "const myUserId = 'users/109896085350901020445'\n\nconst STATUS_STANDBY = \"standby\"\nconst STATUS_IGNORED = \"ignore\"\nconst STATUS_REPLIED = \"replied\"\nconst STATUS_AUTO_REPLY = \"auto_reply\"\nconst STATUS_ERROR = \"error\"\nconst STATUS_NOTIFY = \"notify\"\n\nconst extendedResult = {\n  ignored_statuses: [\n    STATUS_STANDBY, STATUS_IGNORED, STATUS_REPLIED\n  ],\n  user_id: \"\",\n  space_id: \"\",\n  chat_history: \"\"\n}\n\nlet arrMessage = $input.all()\nif (arrMessage.length == 0) {\n  return {\n    ...extendedResult,\n    \"status\": STATUS_STANDBY,\n    \"message\": \"chat is empty\"\n  }\n}\n\nlet payload = arrMessage[0].json\nif (payload.messages.length == 0) {\n  return {\n    ...extendedResult,\n    \"status\": STATUS_STANDBY,\n    \"message\": \"no active chat need to be replied\"\n  }\n}\n\nlet chatHistory = \"\"\nfor (let i=payload.messages.length-1; i>=0; i--) {\n  const message = payload.messages[i]\n\n  let userName = \"me\"\n  if (message.sender.name != myUserId) {\n    userName = \"guest\"\n  }\n\n  chatHistory += `${userName}: ${message.text}\\n`\n}\nextendedResult.chat_history = chatHistory\n\nconst message = payload.messages[0]\nextendedResult.user_id = message.sender.name\nextendedResult.space_id = message.space.name\n\nif (message.sender.name == myUserId) {\n  return {\n    ...extendedResult,\n    \"status\": STATUS_REPLIED,\n    \"message\": \"chat had already replied\"\n  }\n}\n\nif (extendedResult.user_id == \"\") {\n  return {\n    ...extendedResult,\n    \"status\": STATUS_ERROR,\n    \"message\": \"sender message is not found\"\n  }\n}\n\nlet isReacted = false\nfor (const item of payload.messages) {\n  if (item.sender.name == myUserId) {\n    break\n  }\n  \n  const emojiReactions = item?.emojiReactionSummaries || []\n  if (emojiReactions.length > 0) {\n    isReacted = true\n    return {\n      ...extendedResult,\n      \"status\": STATUS_REPLIED,\n      \"message\": \"already responsed with emoticons\",\n    }\n  }\n}\n\nlet chatCreateTime = new Date(message.createTime)\nlet chatTime = chatCreateTime.getTime()\nlet currentTime = new Date().getTime()\n\nlet differenceMs = Math.abs(currentTime - chatTime)\nlet elapseMin = Math.floor(differenceMs / 60000);\nif (elapseMin <= 10 && elapseMin >= 3) {\n  return {\n    ...extendedResult,\n    \"status\": STATUS_NOTIFY,\n    \"message\": \"under 10min no reply\",\n  }\n}\n\nif (elapseMin > 25) {\n  return {\n    ...extendedResult,\n    \"status\": STATUS_IGNORED,\n    \"message\": \"surpased 25min is being ignored\",\n  }\n}\n\nif (elapseMin > 15 && !isReacted) {\n  return {\n    ...extendedResult,\n    \"status\": STATUS_AUTO_REPLY,\n    \"message\": \"surpased 15min no reply or reaction\",\n  }\n}\n\nreturn {\n  ...extendedResult,\n  \"status\": STATUS_IGNORED,\n  \"message\": \"no data to be procedd\",\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        80
+      ],
+      "id": "e2fa177b-ac24-4520-9547-b8f563b1ba66",
+      "name": "Check Every Private Message"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemma-4-31b-it",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2848,
+        608
+      ],
+      "id": "27f5a7d7-0982-4b7e-85ef-0384981659fd",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "r7uVMXyy1EF0iEdh",
+          "name": "Kepin Gemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Persona:\nKevin (Fullstack Golang/React Engineer). Happy, kind, and helpful.\n\n# Context & History:\n{{ $json.chat_history }}\n\n# Instruction:\nAnalyze the user's messages in the Chat History to identify their specific communication style (length, tone, and vocabulary). \n\nCreate a response to the latest message that:\n1. Mimics the user's level of brevity and precision.\n2. Adopts the user's formatting (e.g., all lowercase, no periods, or technical shorthand).\n3. Maintains Kevin's helpful and kind persona.\n\n# Output:\nReturn only the message string.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2848,
+        432
+      ],
+      "id": "9e5b50a2-13ea-4f6c-8250-c1dcbe52b3ba",
+      "name": "Agent Chat Helper"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "member",
+        "operation": "getAll",
+        "spaceId": "spaces/AAQAKZXeZSs"
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        784
+      ],
+      "id": "ded2f52c-e343-41c9-8afb-215ff208e6c8",
+      "name": "Get Member AI Team",
+      "webhookId": "3346d1e3-02f7-44d9-9085-2fbee7c87bc9",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "spaceId": "={{ $json.space_id }}",
+        "messageUi": {
+          "text": "=😆 Okayy, Siappp 🔥\n\n>_Auto Generated by *n8n*_\n>_Reminder Chat Cron_"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        2368,
+        368
+      ],
+      "id": "696ef618-7eda-468a-b017-4e1f1eef782d",
+      "name": "Auto Reply",
+      "webhookId": "85eaf8e4-2925-48ff-8a41-4c99cbdd9430",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "spaceId": "={{ $('Check Every Private Message').item.json.space_id }}",
+        "messageUi": {
+          "text": "={{ $json.output }}"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        3200,
+        432
+      ],
+      "id": "70b60e4d-d88a-4451-af0a-563047798c9d",
+      "name": "Auto Reply With AI",
+      "webhookId": "85eaf8e4-2925-48ff-8a41-4c99cbdd9430",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "uBj1EkWN1NPkU0xD",
+          "name": "Kepin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "kcchandra@waresix.com",
+          "mode": "list",
+          "cachedResultName": "kcchandra@waresix.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        3088,
+        672
+      ],
+      "id": "8b53b86b-f0d7-43ed-a92b-ad6d557950fe",
+      "name": "get_availability",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "c8eCoPj3aofUZV5q",
+          "name": "Kcchandra Calendar"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Member wOS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Member Mobi Team",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Member Navi Team",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Member Engineering",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Member AI Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Member Mobi Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Private Direct Message": {
+      "main": [
+        [
+          {
+            "node": "If Not Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List of Message from Spaces": {
+      "main": [
+        [
+          {
+            "node": "Check Every Private Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Not Error": {
+      "main": [
+        [
+          {
+            "node": "List of Message from Spaces",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Space Member",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Member Mobi Team": {
+      "main": [
+        [
+          {
+            "node": "Merge Space Members",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get Member wOS": {
+      "main": [
+        [
+          {
+            "node": "Merge Space Members",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Space Members": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Space Member": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Private Direct Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Member Navi Team": {
+      "main": [
+        [
+          {
+            "node": "Merge Space Members",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Filter Duplicate Users": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Space Member",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Filter Duplicate Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Member Engineering": {
+      "main": [
+        [
+          {
+            "node": "Merge Space Members",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Webhook Chat Bot Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Auto Reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Webhook Chat Auto Replied",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Agent Chat Helper",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Webhook Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Space Member",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Chat Bot Reminder": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Space Member",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Error": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Space Member",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Chat Auto Replied": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Space Member",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Every Private Message": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent Chat Helper",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Member AI Team": {
+      "main": [
+        [
+          {
+            "node": "Merge Space Members",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Auto Reply": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Space Member",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Chat Helper": {
+      "main": [
+        [
+          {
+            "node": "Auto Reply With AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Reply With AI": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Space Member",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent Chat Helper",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "NKttgv0ZnWTjryEh",
+    "timeSavedMode": "fixed",
+    "executionTimeout": 600
+  },
+  "versionId": "9eba3896-823d-4963-aa8e-5ddd323c5e72",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0104f99eaab1f0efa64372adbca739144ca4431bbd27b7656e6fe14f06b39d08"
+  },
+  "id": "RtTijrwveWgJKyjV",
+  "tags": []
+}

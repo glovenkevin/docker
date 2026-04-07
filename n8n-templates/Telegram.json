@@ -1,0 +1,2274 @@
+{
+  "name": "Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -48,
+        96
+      ],
+      "id": "64cb4c77-da89-46cd-a2f4-a063c9c1af57",
+      "name": "Telegram Trigger",
+      "webhookId": "638846b9-8840-4ba6-aeb2-9404dfbfdf50",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const commands = [\n  \"help\", \"gpr\", \"gapr\", \"lp\"\n]\n\nconst months = [\n  \"jan\", \"feb\", \"mar\", \"apr\", \"may\", \"jun\", \"jul\", \"aug\",\n  \"sep\", \"oct\", \"nov\", \"dec\"\n]\n\nlet chatId = $input.first().json.message.chat.id\nlet message = $input.first().json.message.text\nlet words = message.split(\" \")\n\nif (words.length == 0) {\n  return {\n    \"command\": \"error\",\n    \"message\": \"unknown command\",\n    \"chat_id\": chatId\n  }\n}\n\nlet commandIdx = commands.findIndex((c) => {\n    return c == words[0].toLowerCase()\n})\nif (commandIdx == -1) {\n  return {\n    \"command\": \"error\",\n    \"message\": \"unknown command\",\n    \"chat_id\": chatId\n  }\n}\n\nlet command = words[0]\n\n// git pull request\nif (command == 'gpr') {\n  let repoName = words[1]\n  let sourceBranch = words[2]\n  let targetBranch = words[3]\n\n  if (repoName == '') {\n    return {\n      \"command\": \"error\",\n      \"message\": \"repo name is empty\",\n      \"chat_id\": chatId\n    }\n  }\n  if (sourceBranch == '') {\n    return {\n      \"command\": \"error\",\n      \"message\": \"source branch is empty\",\n      \"chat_id\": chatId\n    }\n  }\n  if (targetBranch == '') {\n    return {\n      \"command\": \"error\",\n      \"message\": \"target branch is empty\",\n      \"chat_id\": chatId\n    }\n  }\n\n  return {\n    \"command\": command,\n    \"repo_name\": repoName,\n    \"source_branch\": sourceBranch,\n    \"target_branch\": targetBranch\n  }\n}\n\n// gap: git approve\nif (command == \"gapr\") {\n  let links = words.slice(1, words.length)\n\n  return {\n    \"command\": command,\n    \"chat_id\": chatId,\n    \"pull_requests\": links\n  }\n}\n\n// lp: cost reporting\nif (command == \"lp\") {\n  const category = words[1]\n  if (category == 'categories') {\n    return {\n      \"chat_id\": chatId,\n      \"command\": \"lp_categories\"\n    }\n  }\n\n  if (category == 'report') {\n    let month = words[2]\n    let year = parseInt(words[3])\n    const costCategory = words[4]\n\n    const now = new Date()\n    if (isNaN(year) || year > now.getFullYear()) {\n      year = now.getFullYear()\n    }\n\n    const idxMonth = months.findIndex((val) => {\n      return val == month\n    })\n    if (idxMonth == -1) {\n      month = months[now.getMonth()]\n    }\n    \n    return {\n      \"chat_id\": chatId,\n      \"command\": \"lp_report\",\n      \"year\": year,\n      \"month\": month,\n      \"cost_category\": costCategory\n    }\n  }\n  \n  const cost = parseFloat(words[2])\n  if (isNaN(cost)) {\n    return {\n      \"command\": \"error\",\n      \"message\": \"Invalid Parameter for command 'lp' cost\",\n      \"chat_id\": chatId\n    }\n  }\n  \n  return {\n    \"chat_id\": chatId,\n    \"command\": command,\n    \"category\": words[1],\n    \"cost\": words[2],\n    \"description\": words.slice(3, words.length).join(\" \")\n  }\n}\n\nreturn {\n  \"command\": command,\n  \"message\": words.slice(1, words.length).join(\" \"),\n  \"chat_id\": chatId\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        96
+      ],
+      "id": "56a9efb2-b5f5-4213-95bc-acbd29a28e09",
+      "name": "Access Command"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "error",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5b256eee-d107-4665-95c5-5e6f9f11bb35"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "323968b2-d581-4d4d-9246-fc51809a7fed",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "help",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ed422dfd-1337-4f2a-ae1b-01ac6d13c111",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "gpr",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d6ddedff-c90a-4590-9461-de6ad4a6e925",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "gapr",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7f5a58b5-636e-421f-9ee3-268ec2ef4acb",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "lp",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "28769412-5100-4093-be9e-833a44dd2ebb",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "lp_categories",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "427d3870-ec08-4fca-8391-baaaacc2ae00",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "lp_report",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "allMatchingOutputs": false
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        400,
+        16
+      ],
+      "id": "fec5cfa2-e370-4da0-b5a1-f08ac4a95a65",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "content": "### Commands\n---\n- error [0] : wrong command\n- help [1] : information\n- gpr [2]: generate pull request\n- gapr [3] : git approve PR\n- lp [4] : lapor pengeluaran\n- lp categories [5] : dapet lapor pengeluaran kategori\n- lp report [6] : get summary pengeluaran by category or general",
+        "height": 256,
+        "width": 288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -272
+      ],
+      "id": "0c01f438-4d74-496d-a278-d295caa662ff",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### Create Pull Request\n---\n1. start from pulling target and source branch\n2. Makesure both exists\n3. Check if the PR already exists for both branch\n4. Create the PR not exists\n5. Otherwise Fetch the PR Link Number\n6. Return the PR Link",
+        "height": 192,
+        "width": 352
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        928,
+        256
+      ],
+      "id": "3392cf2b-8c79-4ba5-9f9f-8b8ead20732d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "repository",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "https://github.com/waresix",
+          "mode": "url"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $json.repo_name }}",
+          "mode": "name"
+        }
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        496
+      ],
+      "id": "c808b5ba-82f8-4ea7-ab69-1a083ca07e3f",
+      "name": "Get Repository Branch",
+      "webhookId": "85130ec0-dfa0-4e40-9e64-8761b2c1dcaf",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "n4zssXzve4HvHuIZ",
+          "name": "Github Kevin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "### Approve PR\n1. git approve ...<link>\n2. hit github to approve\n3. send result"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        912,
+        944
+      ],
+      "id": "1ae5f1a1-55ac-43ee-8bfb-29e03ead436a",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        1168
+      ],
+      "id": "28e3d738-d4fc-46fe-bda0-6822d2ad9f0d",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "let links = $input.first().json.pull_requests\n\nlet data = []\nlinks.forEach((val) => {\n  let words = val.split(\"/\")\n  let items = words.slice(words.length-4, words.length)\n\n  if (items.length == 0 || items[2] != \"pull\") {\n    data.push({\n      \"url\": val,\n      \"err_message\": \"wrong url\"\n    })\n  }\n\n  // example: https://github.com/waresix/navi-core-service/pull/3865\n  let ownerName = items[0]\n  let repoName = items[1]\n  let pullRequestId = items[3]\n\n  data.push({\n    \"url\": val,\n    \"chat_id\": $input.first().json.chat_id,\n    \"repo_name\": repoName,\n    \"owner_name\": ownerName,\n    \"pull_request_number\": pullRequestId,\n    \"err_message\": null\n  })\n})\n\nreturn data"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        1168
+      ],
+      "id": "d77e236f-0b96-4284-872a-8d727beddd17",
+      "name": "Proccess Data"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "review",
+        "operation": "getAll",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $json.owner_name }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $json.repo_name }}"
+        },
+        "pullRequestNumber": "={{ $json.pull_request_number }}"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        1248
+      ],
+      "id": "ce8e1bec-0918-4d20-91be-46af0a879e26",
+      "name": "Get many reviews",
+      "webhookId": "b8d848e8-692c-49e5-9427-dd325bd9908c",
+      "alwaysOutputData": true,
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "n4zssXzve4HvHuIZ",
+          "name": "Github Kevin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let reviews = $input.all()\n\nconst idx = parseInt($runIndex.toString())\nconst pr_data = $('Proccess Data').all()[idx]\nconst data = pr_data.json\n\nconst result = {\n  chat_id: data.chat_id,\n  valid: true,\n  owner_name: data.owner_name,\n  repo_name: data.repo_name,\n  pr_number: data.pull_request_number\n}\n\nif (reviews.length == 1 && Object.keys(reviews[0].json).length == 0) {\n  return result\n}\n\nfor (const rev of reviews) {\n  const item = rev.json\n  \n  if (item.user.login == 'kcchandra-w6' && item.state == 'APPROVED') {\n    result.valid = false\n    return result\n  }\n}\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        1248
+      ],
+      "id": "eb35906e-4989-46e5-9428-eb18532c8de7",
+      "name": "Check Reviews"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "review",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $('Check Reviews').item.json.owner_name }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $('Check Reviews').item.json.repo_name }}",
+          "mode": "name"
+        },
+        "pullRequestNumber": "={{ $('Check Reviews').item.json.pr_number }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        2096,
+        1232
+      ],
+      "id": "6987bc3b-b20b-46f5-8ae5-65e3c73a323e",
+      "name": "Create a review",
+      "webhookId": "763d7c09-b5a4-4cc6-bab4-ee1ebe43c601",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "n4zssXzve4HvHuIZ",
+          "name": "Github Kevin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Check Reviews').item.json.chat_id }}",
+        "text": "=Approved: {{ $('Check Reviews').item.json.repo_name }}\nPR Number: {{ $('Check Reviews').item.json.pr_number }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2272,
+        1232
+      ],
+      "id": "b33f45fc-6c28-4411-a3d1-c93fe0e1155c",
+      "name": "Success Approved",
+      "webhookId": "78819ce2-9ef8-4d5c-851c-213cb97b029d",
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Check Reviews').item.json.chat_id }}",
+        "text": "=Already Approved: {{ $('Check Reviews').item.json.repo_name }}\nPR Number: {{ $('Check Reviews').item.json.pr_number }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2096,
+        1456
+      ],
+      "id": "a2fbe049-f1fe-40aa-8b63-58b7eb839abe",
+      "name": "No Need Approve",
+      "webhookId": "78819ce2-9ef8-4d5c-851c-213cb97b029d",
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "repository",
+        "operation": "getPullRequests",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $json.owner.login }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $json.name }}",
+          "mode": "name"
+        },
+        "limit": 10,
+        "getRepositoryPullRequestsFilters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1136,
+        496
+      ],
+      "id": "99df2728-d628-4312-a3c4-4cffc7256ea5",
+      "name": "Populate PR",
+      "webhookId": "dddbec5f-f032-4938-9fbc-48f3c8a69cef",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "n4zssXzve4HvHuIZ",
+          "name": "Github Kevin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7c96e03e-bb46-4a74-b032-182a089d24d8",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        1248
+      ],
+      "id": "a862db98-48bf-489b-868d-589761457148",
+      "name": "PR Is Valid"
+    },
+    {
+      "parameters": {
+        "jsCode": "let pullRequests = $input.all()\nlet sourceBranch = $('Access Command').first().json.source_branch\nlet targetBranch = $('Access Command').first().json.target_branch\n\nfor (let i=0; i<pullRequests.length; i++) {\n  let pr = pullRequests[i].json\n\n  let headBranch = pr.head.ref\n  let baseBranch = pr.base.ref\n\n  if (headBranch == sourceBranch && baseBranch == targetBranch) {\n    return {\n      \"pr_exists\": true,\n      \"pr_url\": pr.html_url,\n      \"repo_owner_name\": null,\n      \"repo_name\": null,\n      \"pr_title\": pr.title,\n      \"body\": pr.body\n    }\n  }\n}\n\nreturn {\n  \"pr_exists\": false,\n  \"pr_url\": null,\n  \"repo_owner_name\": $('Get Repository Branch').first().json.owner.login,\n  \"repo_name\": $('Get Repository Branch').first().json.name,\n  \"pr_title\": $('Switch').first().json.source_branch,\n  \"body\": \"Created by n8n\",\n  \"head\": sourceBranch,\n  \"base\": targetBranch\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        496
+      ],
+      "id": "c1226834-cc6d-463a-bc91-5792f6a947ec",
+      "name": "Check Each PR"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8d59daa4-1c69-4f04-8b3a-8bee1a160210",
+              "leftValue": "={{ $json.pr_exists }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1552,
+        496
+      ],
+      "id": "bb270f69-46bc-44e2-a39e-0b19e33c6f3f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Feature PR Github gak disupport blok",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1840,
+        704
+      ],
+      "id": "62b9ebe3-f91d-4e20-ac59-fcf1921b648b",
+      "name": "PR Is Exists - No Need Create",
+      "webhookId": "41945ff1-5e2e-450c-98f5-2c37d661fcae",
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.github.com/repos/{{ $json.repo_owner_name }}/{{ $json.repo_name }}/pulls",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"{{ $json.pr_title }}\",\n  \"body\": \"{{ $json.body }}\",\n  \"head\": \"{{ $json.head }}\",\n  \"base\": \"{{ $json.base }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1840,
+        480
+      ],
+      "id": "903b23e1-ec70-433c-9d8a-eee9307365e4",
+      "name": "Create Pull Request",
+      "alwaysOutputData": false,
+      "retryOnFail": false,
+      "maxTries": 2,
+      "credentials": {
+        "githubApi": {
+          "id": "bo8UljOC5VXP1GXJ",
+          "name": "GitHub Kevin"
+        },
+        "githubOAuth2Api": {
+          "id": "n4zssXzve4HvHuIZ",
+          "name": "Github Kevin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=PR Created\nLink: {{ $json.html_url }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2096,
+        480
+      ],
+      "id": "45642ff3-b9ea-45f2-ab9d-7744f9b9bc8d",
+      "name": "PR Created",
+      "webhookId": "41945ff1-5e2e-450c-98f5-2c37d661fcae",
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Access Command').item.json.chat_id }}",
+        "text": "=### Commands\n---\n- help: information\n- gpr: generate pull request\n- gapr: git approve PR\n- lp: populate cost daily",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        32
+      ],
+      "id": "56963934-5bb3-4511-8ea9-030a7eec0a18",
+      "name": "Help",
+      "webhookId": "c2b968f1-b2dc-42b6-b721-2e49bd2d1c76",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Access Command').item.json.chat_id }}",
+        "text": "={{ $('Access Command').item.json.message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        -160
+      ],
+      "id": "7a945cbd-30a6-4e7a-9f84-d756e991bd91",
+      "name": "Error",
+      "webhookId": "c2b968f1-b2dc-42b6-b721-2e49bd2d1c76",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "### Report Pengeluaran\n1. Command what cost\n2. Create Spreadsheet if not exsits\n3. Insert Today Cost as new LIne"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        928,
+        1904
+      ],
+      "id": "61766a4f-9897-4777-9374-dd2716631ea8",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Access Command').first().json\n\nlet categoryIsExist = false\nfor (const item of $input.all()) {\n  if (input.category == item.json.category) {\n    categoryIsExist = true\n    break\n  }\n}\n\nif (!categoryIsExist) {\n  return {\n    \"is_valid\": false,\n    \"error_message\": \"😡 category is unrecognized\",\n    \"chat_id\": input.chat_id\n  }\n}\n\nconst bulan = [\n  \"januari\", \"februari\", \"maret\", \"april\", \"mei\", \n  \"juni\", \"juli\", \"agustus\", \"september\", \"oktober\", \n  \"november\", \"desember\"\n]\n\nconst now = new Date()\nconst docName = `cost-${now.getFullYear()}`\nconst sheetName = bulan[now.getMonth()]\n\nreturn {\n  ...input,\n  \"request_date\": now.toLocaleDateString(),\n  \"is_valid\": true,\n  \"doc_name\": docName,\n  \"sheet_name\": sheetName\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        2112
+      ],
+      "id": "1ee8c7b5-2e75-45c4-b669-36f64d8ddc63",
+      "name": "Separate Command Report"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c9a75d42-f7d9-4018-a82f-f458830ecf93",
+              "leftValue": "={{ $json.is_valid }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1408,
+        2112
+      ],
+      "id": "80e33a19-1095-4c14-9f0e-b096f302aa30",
+      "name": "Valid to Exec Report"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $json.doc_name }}",
+        "limit": 1,
+        "filter": {
+          "driveId": {
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "16AHWRGOUzCbNhaVWTD1lli14oPa8VuUk",
+            "mode": "list",
+            "cachedResultName": "Personal",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/16AHWRGOUzCbNhaVWTD1lli14oPa8VuUk"
+          },
+          "whatToSearch": "files"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1648,
+        2096
+      ],
+      "id": "a1f250b2-3d93-4217-b9bc-78807d52815f",
+      "name": "Search files and folders",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X8WESKNtYQUU4mxR",
+          "name": "Gdrive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "716b6c0d-9578-4601-832c-8aa374e1ce6b",
+              "leftValue": "={{ Object.keys($items()[0].json).length === 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1856,
+        2096
+      ],
+      "id": "0f767a13-9725-4c45-b3e9-8b3308fb5cea",
+      "name": "Check Sheet Is Exists"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Create Cost Sheet').item.json.spreadsheetId }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "16AHWRGOUzCbNhaVWTD1lli14oPa8VuUk",
+          "mode": "list",
+          "cachedResultName": "Personal",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/16AHWRGOUzCbNhaVWTD1lli14oPa8VuUk"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2736,
+        2496
+      ],
+      "id": "275c20e7-df27-42e3-9577-9fe2f904cfc5",
+      "name": "Move file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X8WESKNtYQUU4mxR",
+          "name": "Gdrive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Create Cost Sheet').item.json.spreadsheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Separate Command Report').item.json.sheet_name }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cost",
+              "displayName": "cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2528,
+        2496
+      ],
+      "id": "a9af9d3d-69ae-4825-98d4-db99942594e0",
+      "name": "Add Header",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fcYIzmTQVr4b3hHf",
+          "name": "Kevin Google Sheet Oauth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Map Source Find Files').item.json.chat_id }}",
+        "text": "=✅ **Selesai Menambahkan Data**\n\nCost: {{ $json.Cost }}\nCategory: {{ $json.Category.charAt(0).toUpperCase() + $json.Category.slice(1) }}\nFile: {{ $('Map Source Find Files').item.json.doc_name }}\nSheet Name: {{ $('Map Source Find Files').item.json.sheet_name }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3872,
+        2064
+      ],
+      "id": "fc515693-f845-4597-a0a9-30c541e4ffd8",
+      "name": "Success Tambah Data",
+      "webhookId": "c75c49bd-9683-42be-a6c6-9645a7621c6a",
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.spreadsheet_id }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $json.sheet_name }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.request_date }}",
+            "Category": "={{ $json.category }}",
+            "Cost": "={{ $json.cost }}",
+            "Description": "={{ $json.description }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cost",
+              "displayName": "Cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3456,
+        2064
+      ],
+      "id": "9be8110d-70bc-4250-8667-72fa90ca8031",
+      "name": "Masukan Cost",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fcYIzmTQVr4b3hHf",
+          "name": "Kevin Google Sheet Oauth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const baseInput = $('Separate Command Report').first().json\nconst createdSpreadsheetID = $('Create Cost Sheet').first().json.spreadsheetId\n\nreturn {\n  ...baseInput,\n  \"spreadsheet_id\": createdSpreadsheetID\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2944,
+        2496
+      ],
+      "id": "d7b04e1c-78e3-4c09-ad66-b47e5ce4af45",
+      "name": "Map Source Create"
+    },
+    {
+      "parameters": {
+        "jsCode": "const baseInput = $('Separate Command Report').first().json\nconst existsFileID = $('Search files and folders').first().json.id\n\nreturn {\n  ...baseInput,\n  \"spreadsheet_id\": existsFileID,\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3232,
+        2064
+      ],
+      "id": "9b8ed666-debc-4b09-ac09-af298be6dd67",
+      "name": "Map Source Find Files"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    \"Date\": null,\n    \"Category\": null,\n    \"Cost\": null,\n    \"Description\": null\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2304,
+        2496
+      ],
+      "id": "b628c9dc-d021-4f72-8025-4281f370dd4e",
+      "name": "Setup Header Payload"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.error_message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1632,
+        2336
+      ],
+      "id": "7ef7cb4c-44eb-467c-92aa-8e960a434373",
+      "name": "Invalid Parameter",
+      "webhookId": "d413b6a1-0c7a-4f52-b074-a7b282cea841",
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "70c960c8-6c37-495a-8911-2dba1281909c",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "0f7b7b4f-101d-4fa8-94e6-70b1a1b9aade",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2304,
+        2080
+      ],
+      "id": "54ab60ef-df28-4c60-88e4-bb454f6417aa",
+      "name": "Check If Worksheet is Exists"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Search files and folders').item.json.id }}",
+          "mode": "id"
+        },
+        "title": "={{ $('Valid to Exec Report').item.json.sheet_name }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2528,
+        2208
+      ],
+      "id": "c8aec2b8-2965-4297-b325-1af6899db6b6",
+      "name": "Create Worksheet By Month",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fcYIzmTQVr4b3hHf",
+          "name": "Kevin Google Sheet Oauth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Search files and folders').item.json.id }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Valid to Exec Report').item.json.sheet_name }}",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2096,
+        2080
+      ],
+      "id": "a9b852ca-c96d-4a7e-b051-6edcb32d9d8a",
+      "name": "Check Worksheet By Getting The Rows",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fcYIzmTQVr4b3hHf",
+          "name": "Kevin Google Sheet Oauth"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    \"Date\": null,\n    \"Category\": null,\n    \"Cost\": null,\n    \"Description\": null\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2752,
+        2208
+      ],
+      "id": "0d38037d-6a65-4359-8b1a-7bdcb7acb937",
+      "name": "Setup Header For New Sheets"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Create Worksheet By Month').item.json.spreadsheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Create Worksheet By Month').item.json.sheetId }}",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2976,
+        2208
+      ],
+      "id": "6ae78146-6397-4687-804e-019e07129be2",
+      "name": "Add Header On New Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fcYIzmTQVr4b3hHf",
+          "name": "Kevin Google Sheet Oauth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.content }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1392,
+        2752
+      ],
+      "id": "675e9f2b-7794-46f5-aa43-f015230a0eba",
+      "name": "Send LP Categories",
+      "webhookId": "d413b6a1-0c7a-4f52-b074-a7b282cea841",
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let text = `Available Categories 👇:`\n\nfor (const item of $input.all()) {\n  text += `\n  - ${item.json.category}`\n}\n\nreturn {\n  content: text,\n  chat_id: $('Access Command').first().json.chat_id\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        2752
+      ],
+      "id": "f762134f-3a9e-4fde-b6f4-4677cc86a959",
+      "name": "Prepare Help Categories"
+    },
+    {
+      "parameters": {
+        "jsCode": "const monthNames = new Map([\n  [\"jan\", \"januari\"],\n  [\"feb\", \"februari\"],\n  [\"mar\", \"maret\"],\n  [\"apr\", \"april\"],\n  [\"may\", \"mei\"],\n  [\"jun\", \"juni\"],\n  [\"jul\", \"juli\"],\n  [\"aug\", \"agustus\"],\n  [\"sep\", \"september\"],\n  [\"oct\", \"oktober\"],\n  [\"nov\", \"november\"],\n  [\"dec\", \"desember\"] \n])\n\nconst data = $('Access Command').first().json\n\nlet costCategory = 'general'\nfor (const item of $input.all()) {\n  if (item.json.category == data.cost_category) {\n    costCategory = data.cost_category\n  }\n}\n\nconst extended = {\n  ...data,\n  cost_category: costCategory,\n  file_name: `cost-${data.year}`,\n  sheet_name: monthNames.get(data.month)\n}\n\nreturn extended"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        3040
+      ],
+      "id": "9400debb-3f69-46be-b26e-a51538f3dd34",
+      "name": "Get Report Summary Total"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "=📕 **Report Cost**\n\nDate: {{ $json.date }}\nTotal Biaya: {{ $json.total_cost }}\nCategory: {{ $json.cost_category.charAt(0).toUpperCase() + $json.cost_category.slice(1) }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2064,
+        3024
+      ],
+      "id": "5ea60ff8-d276-47fb-83c0-b8e88fd05772",
+      "name": "Lapor Report Summaries",
+      "webhookId": "d413b6a1-0c7a-4f52-b074-a7b282cea841",
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const reportSummary = $('Get Report Summary Total').first().json\nlet totalCost = 0\nlet costCategory = reportSummary.cost_category || \"\"\n\nconst isCategoryGeneral = costCategory === 'general'\n\nfor (const row of $input.all()) {\n  const item = row.json\n  \n  if (!isCategoryGeneral && \n      item.Category !== costCategory) {\n    continue\n  }\n  \n  totalCost += item.Cost\n}\n\nconst month = reportSummary?.sheet_name\nconst year = reportSummary?.year\n\nconst formatedCost = new Intl.NumberFormat('id-ID', {\n    style: 'currency',\n    currency: 'IDR',\n    minimumFractionDigits: 2, // Indonesian Rupiah typically uses two decimal places\n}).format(totalCost)\n\nif (costCategory === \"\") {\n  costCategory = \"general\"\n}\n\nreturn {\n  chat_id: reportSummary.chat_id,\n  date: month + \" \" + year,\n  total_cost: formatedCost,\n  cost_category: costCategory\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        3024
+      ],
+      "id": "08e04b9e-b431-41f2-8b4b-62f34695e288",
+      "name": "Populate All data to Get Total Cost"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Get Report Summary Total').item.json.sheet_name }}",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1600,
+        3040
+      ],
+      "id": "2a3475ab-eca2-4aa7-b52c-90d2f2be2657",
+      "name": "Get All Row result From Cost Report",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fcYIzmTQVr4b3hHf",
+          "name": "Kevin Google Sheet Oauth"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Get Report Summary Total').item.json.chat_id }}",
+        "text": "=⚠️ **ERROR**\n\nMessage: {{ $json.error }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1840,
+        3232
+      ],
+      "id": "4663e6cb-05ba-45e0-9a53-89f3879240e7",
+      "name": "Error Sheets Not Found",
+      "webhookId": "d413b6a1-0c7a-4f52-b074-a7b282cea841",
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Map Source Create').item.json.chat_id }}",
+        "text": "=✅ **Selesai Menambahkan Data**\n\nCost: Rp{{ $('Map Source Create').item.json.cost }}\nCategory: {{ $('Map Source Create').item.json.category }}\nFile: {{ $('Map Source Create').item.json.doc_name }}\nSheet Name: {{ $('Map Source Create').item.json.sheet_name }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3632,
+        2496
+      ],
+      "id": "0d980c1f-4f70-436e-b65b-b35d9a815987",
+      "name": "Berhasil Menambah Data Sheet Baru",
+      "webhookId": "c75c49bd-9683-42be-a6c6-9645a7621c6a",
+      "credentials": {
+        "telegramApi": {
+          "id": "UY8JlGHVZUFW9HLU",
+          "name": "Kepin Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.spreadsheet_id }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $json.sheet_name }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.request_date }}",
+            "Category": "={{ $json.category }}",
+            "Cost": "={{ $json.cost }}",
+            "Description": "={{ $json.description }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cost",
+              "displayName": "Cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3184,
+        2496
+      ],
+      "id": "c4a0ee48-1dc5-402f-a899-baaa8a1a9379",
+      "name": "Masukan Cost Sheet Baru",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fcYIzmTQVr4b3hHf",
+          "name": "Kevin Google Sheet Oauth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6e0030b8-c361-4194-ae40-a2bc23e9fb2f",
+              "name": "Cost",
+              "value": "={{ new Intl.NumberFormat('id-ID', {\n    style: 'currency',\n    currency: 'IDR',\n    minimumFractionDigits: 2, // Indonesian Rupiah typically uses two decimal places\n}).format($json.Cost) }}",
+              "type": "string"
+            },
+            {
+              "id": "b939b269-76d0-4778-b8b7-bc3c009fc875",
+              "name": "Date",
+              "value": "={{ $json.Date }}",
+              "type": "string"
+            },
+            {
+              "id": "37d9c1bf-159f-4d8b-8cee-f631a1cfde42",
+              "name": "Category",
+              "value": "={{ $json.Category }}",
+              "type": "string"
+            },
+            {
+              "id": "206748d4-24c9-4a2b-97b2-697b006e3927",
+              "name": "Description",
+              "value": "={{ $json.Description }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3680,
+        2064
+      ],
+      "id": "7a7f4dd2-2570-4bea-9d78-65ea19239f4d",
+      "name": "Modify Cost Format"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6e0030b8-c361-4194-ae40-a2bc23e9fb2f",
+              "name": "Cost",
+              "value": "={{ new Intl.NumberFormat('id-ID', {\n    style: 'currency',\n    currency: 'IDR',\n    minimumFractionDigits: 2, // Indonesian Rupiah typically uses two decimal places\n}).format($json.Cost) }}",
+              "type": "string"
+            },
+            {
+              "id": "b939b269-76d0-4778-b8b7-bc3c009fc875",
+              "name": "Date",
+              "value": "={{ $json.Date }}",
+              "type": "string"
+            },
+            {
+              "id": "37d9c1bf-159f-4d8b-8cee-f631a1cfde42",
+              "name": "Category",
+              "value": "={{ $json.Category }}",
+              "type": "string"
+            },
+            {
+              "id": "206748d4-24c9-4a2b-97b2-697b006e3927",
+              "name": "Description",
+              "value": "={{ $json.Description }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3408,
+        2496
+      ],
+      "id": "4debaae2-2773-4a3a-b89f-ffd6601d648f",
+      "name": "Modify Cost New File"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "bNfky8Hs4xED4ToS",
+          "mode": "list",
+          "cachedResultName": "daily_necesity_categories",
+          "cachedResultUrl": "/projects/1JfYb416BEsVJ173/datatables/bNfky8Hs4xED4ToS"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        928,
+        2752
+      ],
+      "id": "f5e99f74-c5da-443d-8fec-dcecac1a9367",
+      "name": "Get Categories Necesity"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "bNfky8Hs4xED4ToS",
+          "mode": "list",
+          "cachedResultName": "daily_necesity_categories",
+          "cachedResultUrl": "/projects/1JfYb416BEsVJ173/datatables/bNfky8Hs4xED4ToS"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        928,
+        3040
+      ],
+      "id": "76d2b850-5577-4fe5-812c-2435e4527668",
+      "name": "Get Categories Necesity1"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $json.file_name }}",
+        "limit": 1,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "16AHWRGOUzCbNhaVWTD1lli14oPa8VuUk",
+            "mode": "list",
+            "cachedResultName": "Personal",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/16AHWRGOUzCbNhaVWTD1lli14oPa8VuUk"
+          },
+          "whatToSearch": "files"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1392,
+        3040
+      ],
+      "id": "1eab8389-c769-4e40-a1ab-439cd0dc7f6f",
+      "name": "Search File Cost Report",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X8WESKNtYQUU4mxR",
+          "name": "Gdrive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "bNfky8Hs4xED4ToS",
+          "mode": "list",
+          "cachedResultName": "daily_necesity_categories",
+          "cachedResultUrl": "/projects/1JfYb416BEsVJ173/datatables/bNfky8Hs4xED4ToS"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        928,
+        2112
+      ],
+      "id": "fda4e63f-251b-4026-a60c-f9800c98307a",
+      "name": "Get Categories Necesity2"
+    },
+    {
+      "parameters": {
+        "resource": "spreadsheet",
+        "title": "={{ $('Valid to Exec Report').item.json.doc_name }}",
+        "sheetsUi": {
+          "sheetValues": [
+            {
+              "title": "={{ $('Valid to Exec Report').item.json.sheet_name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2096,
+        2496
+      ],
+      "id": "5c6f120c-23bb-4a3c-8984-f293733a3226",
+      "name": "Create Cost Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fcYIzmTQVr4b3hHf",
+          "name": "Kevin Google Sheet Oauth"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Access Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Access Command": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Help",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Repository Branch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Proccess Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Categories Necesity2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Categories Necesity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Categories Necesity1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Get Repository Branch": {
+      "main": [
+        [
+          {
+            "node": "Populate PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get many reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proccess Data": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many reviews": {
+      "main": [
+        [
+          {
+            "node": "Check Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Reviews": {
+      "main": [
+        [
+          {
+            "node": "PR Is Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a review": {
+      "main": [
+        [
+          {
+            "node": "Success Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Success Approved": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Need Approve": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Populate PR": {
+      "main": [
+        [
+          {
+            "node": "Check Each PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PR Is Valid": {
+      "main": [
+        [
+          {
+            "node": "Create a review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Need Approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Each PR": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create Pull Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PR Is Exists - No Need Create",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Pull Request": {
+      "main": [
+        [
+          {
+            "node": "PR Created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Help": {
+      "main": [
+        []
+      ]
+    },
+    "Separate Command Report": {
+      "main": [
+        [
+          {
+            "node": "Valid to Exec Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid to Exec Report": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invalid Parameter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Check Sheet Is Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Sheet Is Exists": {
+      "main": [
+        [
+          {
+            "node": "Check Worksheet By Getting The Rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Cost Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Header": {
+      "main": [
+        [
+          {
+            "node": "Move file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move file": {
+      "main": [
+        [
+          {
+            "node": "Map Source Create",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Masukan Cost": {
+      "main": [
+        [
+          {
+            "node": "Modify Cost Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Source Find Files": {
+      "main": [
+        [
+          {
+            "node": "Masukan Cost",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Source Create": {
+      "main": [
+        [
+          {
+            "node": "Masukan Cost Sheet Baru",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup Header Payload": {
+      "main": [
+        [
+          {
+            "node": "Add Header",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Worksheet is Exists": {
+      "main": [
+        [
+          {
+            "node": "Map Source Find Files",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Worksheet By Month",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Worksheet By Month": {
+      "main": [
+        [
+          {
+            "node": "Setup Header For New Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Worksheet By Getting The Rows": {
+      "main": [
+        [
+          {
+            "node": "Check If Worksheet is Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup Header For New Sheets": {
+      "main": [
+        [
+          {
+            "node": "Add Header On New Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Header On New Sheets": {
+      "main": [
+        [
+          {
+            "node": "Map Source Find Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Help Categories": {
+      "main": [
+        [
+          {
+            "node": "Send LP Categories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Report Summary Total": {
+      "main": [
+        [
+          {
+            "node": "Search File Cost Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Populate All data to Get Total Cost": {
+      "main": [
+        [
+          {
+            "node": "Lapor Report Summaries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Row result From Cost Report": {
+      "main": [
+        [
+          {
+            "node": "Populate All data to Get Total Cost",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Sheets Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Masukan Cost Sheet Baru": {
+      "main": [
+        [
+          {
+            "node": "Modify Cost New File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modify Cost Format": {
+      "main": [
+        [
+          {
+            "node": "Success Tambah Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modify Cost New File": {
+      "main": [
+        [
+          {
+            "node": "Berhasil Menambah Data Sheet Baru",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Categories Necesity": {
+      "main": [
+        [
+          {
+            "node": "Prepare Help Categories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Categories Necesity1": {
+      "main": [
+        [
+          {
+            "node": "Get Report Summary Total",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send LP Categories": {
+      "main": [
+        []
+      ]
+    },
+    "Search File Cost Report": {
+      "main": [
+        [
+          {
+            "node": "Get All Row result From Cost Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Categories Necesity2": {
+      "main": [
+        [
+          {
+            "node": "Separate Command Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Cost Sheet": {
+      "main": [
+        [
+          {
+            "node": "Setup Header Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "NKttgv0ZnWTjryEh"
+  },
+  "versionId": "10054a1b-2b90-4b27-97d7-677570656179",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0104f99eaab1f0efa64372adbca739144ca4431bbd27b7656e6fe14f06b39d08"
+  },
+  "id": "D4asqhctThsOk64K",
+  "tags": []
+}
