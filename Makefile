@@ -28,6 +28,9 @@ setup: setup-postgre setup-rabbitmq setup-network setup-n8n
 ps:
 	$(COMPOSE) $(DOCKER_FILES) ps
 
+down:
+	$(COMPOSE) $(DOCKER_FILES) down
+
 container: 
 	$(EXECUTOR) container ls
 
