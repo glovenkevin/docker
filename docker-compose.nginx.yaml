@@ -1,0 +1,20 @@
+include:
+  - network.yaml
+
+services:
+  nginx:
+    image: ${NGINX_IMAGE}
+    container_name: nginx-proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx-config/default.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-config/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx-config/html:/usr/share/nginx/html:ro
+      - ./certs:/etc/nginx/ssl:ro
+    environment:
+      - NGINX_HOST=${NGINX_HOST}
+      - NGINX_PORT=${NGINX_PORT}
+    networks:
+      - nginx-reverse-proxy

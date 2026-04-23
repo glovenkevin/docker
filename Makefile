@@ -184,3 +184,24 @@ redis-restart:
 
 redis-log:
 	$(COMPOSE) -f docker-compose.redis.yaml logs
+
+# Nginx
+nginx-up:
+	$(COMPOSE) -f docker-compose.nginx.yaml up -d
+
+nginx-down:
+	$(COMPOSE) -f docker-compose.nginx.yaml down
+
+nginx-restart:
+	$(COMPOSE) -f docker-compose.nginx.yaml restart
+
+nginx-log:
+	$(COMPOSE) -f docker-compose.nginx.yaml logs
+
+# Generate Cert
+generate-cert:
+	openssl req -x509 -newkey rsa:2048 -nodes -sha256 -days 365 \
+		-keyout localhost.key -out localhost.crt \
+		-subj "/CN=localhost" \
+		-extensions EXT -config <( \
+		printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")

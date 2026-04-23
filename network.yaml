@@ -6,3 +6,4 @@ networks:
   kafka-cluster:
   n8n:
     external: true
+  nginx-reverse-proxy:
