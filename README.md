@@ -32,3 +32,13 @@ make kafka-down
 make kafka-create-topic topic=<topic_name>
 make kafka-delete-topic topic=<topic_name>
 ```
+
+## Generate SSL
+
+```sh
+openssl req -x509 -newkey rsa:2048 -nodes -sha256 -days 365 \
+    -keyout localhost.key -out localhost.crt \
+    -subj "/CN=localhost" \
+    -extensions EXT -config <( \
+    printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+```

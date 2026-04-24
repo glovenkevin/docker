@@ -204,14 +204,6 @@ nginx-restart:
 nginx-log:
 	$(COMPOSE) -f docker-compose.nginx.yaml logs
 
-# Generate Cert
-generate-cert:
-	openssl req -x509 -newkey rsa:2048 -nodes -sha256 -days 365 \
-		-keyout localhost.key -out localhost.crt \
-		-subj "/CN=localhost" \
-		-extensions EXT -config <( \
-		printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
-
 # MySQL
 mysql-up:
 	$(COMPOSE) -f docker-compose.mysql.yaml up -d
