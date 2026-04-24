@@ -23,7 +23,10 @@ setup-n8n:
 	$(EXECUTOR) volume create local-data-n8n-postgres
 	$(EXECUTOR) network create n8n
 
-setup: setup-postgre setup-rabbitmq setup-network setup-n8n
+setup-mysql:
+	$(EXECUTOR) volume create local-mysql
+
+setup: setup-postgre setup-rabbitmq setup-network setup-n8n setup-mysql
 
 ps:
 	$(COMPOSE) $(DOCKER_FILES) ps
@@ -208,3 +211,16 @@ generate-cert:
 		-subj "/CN=localhost" \
 		-extensions EXT -config <( \
 		printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+
+# MySQL
+mysql-up:
+	$(COMPOSE) -f docker-compose.mysql.yaml up -d
+
+mysql-down:
+	$(COMPOSE) -f docker-compose.mysql.yaml down
+
+mysql-restart:
+	$(COMPOSE) -f docker-compose.mysql.yaml restart
+
+mysql-log:
+	$(COMPOSE) -f docker-compose.mysql.yaml logs
