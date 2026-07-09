@@ -6,8 +6,8 @@ services:
     image: ${NGINX_IMAGE}
     container_name: nginx-proxy
     ports:
-      - 80:80
-      - 443:443
+      - "${NGINX_PORT}:80"
+      - "${NGINX_SSL_PORT}:443"
     volumes:
       - ./nginx-config/default.conf:/etc/nginx/nginx.conf:ro
       - ./nginx-config/conf.d:/etc/nginx/conf.d:ro
