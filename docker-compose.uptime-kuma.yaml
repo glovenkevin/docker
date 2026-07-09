@@ -1,0 +1,24 @@
+include:
+  - network.yaml
+
+services:
+  uptime-kuma:
+    image: ${UPTIME_KUMA_IMAGE}
+    container_name: uptime-kuma
+    restart: unless-stopped
+    volumes:
+      - uptime-kuma-data:/app/data
+    ports:
+      - "${UPTIME_KUMA_PORT}:3001"
+    sysctls:
+      - net.ipv4.ping_group_range=0 2147483647
+    networks:
+      - uptime-kuma
+
+volumes:
+  uptime-kuma-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${UPTIME_KUMA_DATA_PATH}
+      o: bind

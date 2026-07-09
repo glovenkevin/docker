@@ -216,3 +216,16 @@ mysql-restart:
 
 mysql-log:
 	$(COMPOSE) -f docker-compose.mysql.yaml logs
+
+# Uptime Kuma
+uptime-kuma-up:
+	$(COMPOSE) -f docker-compose.uptime-kuma.yaml up -d
+
+uptime-kuma-down:
+	$(COMPOSE) -f docker-compose.uptime-kuma.yaml down
+
+uptime-kuma-restart:
+	$(COMPOSE) -f docker-compose.uptime-kuma.yaml restart
+
+uptime-kuma-log:
+	$(COMPOSE) -f docker-compose.uptime-kuma.yaml logs

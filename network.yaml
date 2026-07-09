@@ -7,3 +7,4 @@ networks:
   n8n:
     external: true
   nginx-reverse-proxy:
+  uptime-kuma:
