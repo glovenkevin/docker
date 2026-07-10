@@ -8,8 +8,6 @@ services:
     restart: unless-stopped
     volumes:
       - uptime-kuma-data:/app/data
-    ports:
-      - "${UPTIME_KUMA_PORT}:3001"
     sysctls:
       - net.ipv4.ping_group_range=0 2147483647
     networks:
