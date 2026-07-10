@@ -10,11 +10,12 @@ services:
       - "${NGINX_SSL_PORT}:443"
     volumes:
       - ./nginx-config/default.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx-config/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx-config/templates:/etc/nginx/templates:ro
       - ./nginx-config/html:/usr/share/nginx/html:ro
       - ./certs:/etc/nginx/ssl:ro
     environment:
       - NGINX_HOST=${NGINX_HOST}
       - NGINX_PORT=${NGINX_PORT}
+      - NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1
     networks:
       - nginx-reverse-proxy
