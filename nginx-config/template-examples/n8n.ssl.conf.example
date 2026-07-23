@@ -1,6 +1,21 @@
+# LEARNING REFERENCE — SSL / TLS termination at nginx
+# ----------------------------------------------------
+# This file is NOT loaded by nginx (only *.template are rendered).
+# Active config: n8n.conf.template (HTTP on port 80).
+#
+# Pattern: Browser --HTTPS:443--> nginx --HTTP:5678--> n8n
+# To try SSL again:
+#   1. Ensure certs exist: certs/n8n.crt + certs/n8n.key
+#   2. Rename/copy this to n8n.conf.template (replace the HTTP one)
+#   3. Set N8N_PROTOCOL=https and WEBHOOK_URL=https://localhost.n8n
+#   4. Recreate nginx: make nginx-down && make nginx-up
+
 server {
-    listen 80;
+    listen 443 ssl;
     server_name localhost.n8n;
+
+    ssl_certificate /etc/nginx/ssl/n8n.crt;
+    ssl_certificate_key /etc/nginx/ssl/n8n.key;
 
     # Injected from container /etc/resolv.conf (Podman/Docker DNS)
     resolver ${NGINX_LOCAL_RESOLVERS} valid=10s ipv6=off;

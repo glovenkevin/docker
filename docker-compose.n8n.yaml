@@ -5,8 +5,6 @@ services:
   n8n:
     container_name: n8n
     image: ${N8N_IMAGE}
-    ports:
-      - ${N8N_PORT}:5678
     volumes:
       - n8n-data:/home/node/.n8n
       - n8n-log:/var/log/n8n
@@ -15,7 +13,7 @@ services:
       - N8N_PORT=${N8N_PORT}
       - N8N_HOST=${N8N_HOST}
       - N8N_PROTOCOL=${N8N_PROTOCOL}
-      - WEBHOOK_URL=http://${N8N_HOST}
+      - WEBHOOK_URL=${N8N_PROTOCOL}://${N8N_HOST}
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=${N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS}
       - DB_TYPE=${N8N_DB_TYPE}
@@ -29,6 +27,8 @@ services:
       - TZ=${N8N_POSTGRES_TIMEZONE}
       - N8N_RUNNERS_MODE=${N8N_RUNNERS_MODE}
       - N8N_RUNNERS_AUTH_TOKEN=${N8N_RUNNERS_AUTH_TOKEN}
+      - N8N_SECURE_COOKIE=${N8N_SECURE_COOKIE} # disable secure cookies for local development
+      - N8N_PROXY_HOPS=${N8N_PROXY_HOPS} # trust X-Forwarded-* from nginx reverse proxy
     depends_on:
       - n8n-postgres
     networks:
